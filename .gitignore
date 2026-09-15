@@ -1,0 +1,17 @@
+# Бинарники
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test / profiling artifacts
+*.test
+*.out
+
+# VS Code local settings
+.vscode/
+
+# OS garbage
+.DS_Store
+Thumbs.db
