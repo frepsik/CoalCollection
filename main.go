@@ -3,31 +3,22 @@ package main
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 )
 
 func main() {
 	fmt.Println("Coal mine started")
-	ctx, cancell := context.WithCancel(context.Background())
-	wg := &sync.WaitGroup{}
-	enterprise := Enterprise{
-		ctx: ctx,
-		wg:  wg,
-	}
 
-	fmt.Println(enterprise.GetCoal())
-	enterprise.AddCoal(10)
+	rootCtx := context.Background()
 
-	fmt.Println(enterprise.GetCoal())
+	enterprise := NewEnterprise(rootCtx)
 
-	enterprise.StartPassive()
+	enterprise.Start()
 
-	time.Sleep(time.Second * 10)
+	time.Sleep(10 * time.Second)
 
-	cancell()
+	enterprise.Shutdown()
 
-	wg.Wait()
-	fmt.Println(enterprise.GetCoal())
+	fmt.Println("Количества угля:", enterprise.GetCoal(), "Время работы предприятия:", enterprise.WorkTime())
 	fmt.Println("Конец")
 }
