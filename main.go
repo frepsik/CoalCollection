@@ -1,6 +1,7 @@
 package main
 
 import (
+	"CoalCollection/service"
 	"context"
 	"fmt"
 	"time"
@@ -11,14 +12,14 @@ func main() {
 
 	rootCtx := context.Background()
 
-	enterprise := NewEnterprise(rootCtx)
+	gameService := service.NewGame(rootCtx)
 
-	enterprise.Start()
+	gameService.Start()
 
 	time.Sleep(10 * time.Second)
 
-	enterprise.Shutdown()
+	gameService.Shutdown()
 
-	fmt.Println("Количества угля:", enterprise.GetCoal(), "Время работы предприятия:", enterprise.WorkTime())
+	fmt.Println("Статус игры", gameService.StatusEnterprice())
 	fmt.Println("Конец")
 }
