@@ -79,6 +79,6 @@ func (g *Game) Shutdown() {
 }
 
 // Метод позволяющий узнать, текущий статус, по тому, сколько идёт игра, и сколько сейчас угля, сюда дальше ещё надо интегрировать шахтёров и оборудование, но пока временно так
-func (g *Game) StatusEnterprice() domain.EnterpriseStatus {
+func (g *Game) StatusEnterprise() domain.EnterpriseStatus {
 	return g.enterprise.Status()
 }

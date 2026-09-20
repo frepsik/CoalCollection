@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"sync"
 	"time"
 )
@@ -55,6 +54,9 @@ func (e *Enterprise) Finish(at time.Time) {
 
 // Метод, на возвращение того, сколько по итогу отработало предприятие
 func (e *Enterprise) WorkTime(now time.Time) time.Duration {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
 	//На случай, если захотим запросить время работы, во время выполнения самой игры
 	if e.finishedAt.IsZero() {
 		return now.Sub(e.startedAt)
@@ -64,6 +66,9 @@ func (e *Enterprise) WorkTime(now time.Time) time.Duration {
 
 // Метод который будет собирать текущую информацию по работе предприятия, в последствии предполагаю надо дополнить
 func (e *Enterprise) Status() EnterpriseStatus {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
 	return EnterpriseStatus{
 		Coal:     e.coal,
 		WorkTime: e.WorkTime(time.Now()),
@@ -72,27 +77,33 @@ func (e *Enterprise) Status() EnterpriseStatus {
 
 // Метод приобретения оборудования
 func (e *Enterprise) BuyEquipment(equipment EquipmentType) error {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
 	eq, ok := e.equipments[equipment]
 	if !ok {
-		//Ошибку желательно потом будет вынести в отдельный тип, чтобы возвращать, что то адекватное в http
-		return errors.New("Отсутствует данный тип оборудования")
+		return ErrSearchEquipmentByType
 	}
 
 	if eq.Purchased {
-		//Ошибку желательно потом будет вынести в отдельный тип, чтобы возвращать, что то адекватное в http
-		return errors.New("Оборудование уже приобретено")
+		return ErrEquipmentAlreadyPurchased
 	}
 
 	if e.coal < eq.Cost {
-		return errors.New("Не хватает угля")
+		return ErrNotEnoughCoal
 	}
-	e.AddCoal(-eq.Cost)
+
+	e.coal -= eq.Cost
+
 	eq.Purchased = true
 	return nil
 }
 
 // Метод для получения всего оборудования
 func (e *Enterprise) Equipments() []Equipment {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
 	result := make([]Equipment, 0, len(e.equipments))
 
 	for _, equipment := range e.equipments {
@@ -104,6 +115,9 @@ func (e *Enterprise) Equipments() []Equipment {
 
 // Метод для получения приобретённого оборудования
 func (e *Enterprise) EquipmentsPurchased() []Equipment {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
 	result := make([]Equipment, 0, len(e.equipments))
 
 	for _, equipment := range e.equipments {

@@ -20,6 +20,6 @@ func main() {
 
 	gameService.Shutdown()
 
-	fmt.Println("Статус игры", gameService.StatusEnterprice())
+	fmt.Println("Статус игры", gameService.StatusEnterprise())
 	fmt.Println("Конец")
 }
