@@ -53,9 +53,7 @@ func (e *Enterprise) Finish(at time.Time) {
 }
 
 // Метод, на возвращение того, сколько по итогу отработало предприятие
-func (e *Enterprise) WorkTime(now time.Time) time.Duration {
-	e.mtx.Lock()
-	defer e.mtx.Unlock()
+func (e *Enterprise) workTime(now time.Time) time.Duration {
 
 	//На случай, если захотим запросить время работы, во время выполнения самой игры
 	if e.finishedAt.IsZero() {
@@ -70,8 +68,7 @@ func (e *Enterprise) Status() EnterpriseStatus {
 	defer e.mtx.Unlock()
 
 	return EnterpriseStatus{
-		Coal:     e.coal,
-		WorkTime: e.WorkTime(time.Now()),
+		Coal: e.coal, WorkTime: e.workTime(time.Now()),
 	}
 }
 
@@ -82,7 +79,7 @@ func (e *Enterprise) BuyEquipment(equipment EquipmentType) error {
 
 	eq, ok := e.equipments[equipment]
 	if !ok {
-		return ErrSearchEquipmentByType
+		return ErrEquipmentNotFound
 	}
 
 	if eq.Purchased {
