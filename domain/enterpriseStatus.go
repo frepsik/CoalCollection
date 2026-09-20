@@ -3,6 +3,6 @@ package domain
 import "time"
 
 type EnterpriseStatus struct {
-	Coal     int
+	Coal     Coal
 	WorkTime time.Duration
 }

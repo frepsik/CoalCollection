@@ -17,10 +17,26 @@ type Game struct {
 // Конструктор создания экземпляра самой игры
 func NewGame(ctx context.Context) *Game {
 	ctxGame, cancelGame := context.WithCancel(ctx)
+
+	equipments := map[domain.EquipmentType]*domain.Equipment{
+		domain.Pickaxe: {
+			Name: "Кирка",
+			Cost: 3000,
+		},
+		domain.Ventilation: {
+			Name: "Вентиляция",
+			Cost: 15000,
+		},
+		domain.Trolleys: {
+			Name: "Вагонетки",
+			Cost: 50000,
+		},
+	}
+
 	return &Game{
 		ctxGame:    ctxGame,
 		cancelGame: cancelGame,
-		enterprise: domain.NewEnterprise(),
+		enterprise: domain.NewEnterprise(equipments),
 	}
 }
 
