@@ -86,7 +86,7 @@ func (e *Enterprise) BuyEquipment(equipment EquipmentType) error {
 	if e.coal < eq.Cost {
 		return errors.New("Не хватает угля")
 	}
-	e.coal -= eq.Cost
+	e.AddCoal(-eq.Cost)
 	eq.Purchased = true
 	return nil
 }
