@@ -13,6 +13,7 @@ type Enterprise struct {
 	startedAt  time.Time
 	finishedAt time.Time
 	equipments map[EquipmentType]*Equipment
+	miner      map[MinerType]*Miner
 }
 
 // Конструктор для структуры Enterprise
