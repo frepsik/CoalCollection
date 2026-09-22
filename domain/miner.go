@@ -57,4 +57,7 @@ func (m *Miner) Mine() (Coal, bool) {
 	return Coal(coal), finishWorkMiner
 }
 
-//Ещё нужен метод на интервал, который будет отправляться в service, чтобы там напрямую не доставать, но уже завтра
+// Метод на получения временного интервала добычи угля
+func (m *Miner) IntervalExtraction() time.Duration {
+	return m.minerType.interval
+}

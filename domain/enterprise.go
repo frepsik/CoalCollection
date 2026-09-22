@@ -3,6 +3,8 @@ package domain
 import (
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Coal int
@@ -13,13 +15,15 @@ type Enterprise struct {
 	startedAt  time.Time
 	finishedAt time.Time
 	equipments map[EquipmentType]*Equipment
-	miner      map[MinerType]*Miner
+	miners     map[uuid.UUID]*Miner
 }
 
 // Конструктор для структуры Enterprise
 func NewEnterprise(equipments map[EquipmentType]*Equipment) *Enterprise {
+	miners := make(map[uuid.UUID]*Miner)
 	return &Enterprise{
 		equipments: equipments,
+		miners:     miners,
 	}
 }
 
@@ -125,4 +129,13 @@ func (e *Enterprise) EquipmentsPurchased() []Equipment {
 	}
 
 	return result
+}
+
+// Метод для найма шахтёра
+func (e *Enterprise) HireMiner(minerType MinerType) *Miner {
+	miner := NewMiner(minerType)
+
+	e.miners[miner.id] = miner
+
+	return miner
 }
