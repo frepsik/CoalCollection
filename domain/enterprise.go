@@ -87,17 +87,17 @@ func (e *Enterprise) BuyEquipment(equipment EquipmentType) error {
 		return ErrEquipmentNotFound
 	}
 
-	if eq.Purchased {
+	if eq.purchased {
 		return ErrEquipmentAlreadyPurchased
 	}
 
-	if e.coal < eq.Cost {
+	if e.coal < eq.cost {
 		return ErrEnterpriseNotEnoughCoal
 	}
 
-	e.coal -= eq.Cost
+	e.coal -= eq.cost
 
-	eq.Purchased = true
+	eq.purchased = true
 	return nil
 }
 
@@ -123,7 +123,7 @@ func (e *Enterprise) EquipmentsPurchased() []Equipment {
 	result := make([]Equipment, 0, len(e.equipments))
 
 	for _, equipment := range e.equipments {
-		if equipment.Purchased {
+		if equipment.purchased {
 			result = append(result, *equipment)
 		}
 	}
@@ -137,12 +137,12 @@ func (e *Enterprise) HireMiner(minerType MinerType) (*Miner, error) {
 	defer e.mtx.Unlock()
 
 	if e.coal < minerType.cost {
-		return &Miner{}, ErrEnterpriseNotEnoughCoal
+		return nil, ErrEnterpriseNotEnoughCoal
 	}
 
 	e.coal -= minerType.cost
 
-	miner := NewMiner(minerType)
+	miner := newMiner(minerType)
 
 	e.miners[miner.id] = miner
 
