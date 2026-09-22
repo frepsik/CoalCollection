@@ -3,7 +3,16 @@ package domain
 import "errors"
 
 var (
+	// Enterpise
 	ErrEquipmentNotFound         = errors.New("equipment not found")
-	ErrNotEnoughCoal             = errors.New("not enough coal")
+	ErrEnterpriseNotEnoughCoal   = errors.New("not enough coal")
 	ErrEquipmentAlreadyPurchased = errors.New("equipment already purchased")
+
+	//Miner
+	ErrInvalidMinerTypeName   = errors.New("invalid type name miner")
+	ErrInvalidMinerCost       = errors.New("invalid cost miner")
+	ErrInvalidMinerEnergy     = errors.New("invalid energy miner")
+	ErrInvalidMinerExtraction = errors.New("invalid extraction miner")
+	ErrInvalidMinerInterval   = errors.New("invalid interval miner")
+	ErrInvalidMinerGrowth     = errors.New("invalid growth miner")
 )

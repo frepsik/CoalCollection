@@ -6,23 +6,45 @@ import (
 	"github.com/google/uuid"
 )
 
+type MinerTypeName string
+
+var (
+	SmallMiner  MinerTypeName = "smallMiner"
+	NormalMiner MinerTypeName = "normalMiner"
+	StrongMiner MinerTypeName = "strongMiner"
+)
+
 type MinerType struct {
-	typeName   string
+	typeName   MinerTypeName
 	cost       Coal
 	energy     int
-	extraction int
+	extraction Coal
 	interval   time.Duration
 	growth     Coal
 }
 
 func NewMinerType(
-	typeName string,
+	typeName MinerTypeName,
 	cost Coal,
 	energy int,
-	extraction int,
+	extraction Coal,
 	interval time.Duration,
 	growth Coal,
-) MinerType {
+) (MinerType, error) {
+	if typeName != SmallMiner || typeName != NormalMiner || typeName != StrongMiner {
+		return MinerType{}, ErrInvalidMinerTypeName
+	} else if cost <= 0 {
+		return MinerType{}, ErrInvalidMinerCost
+	} else if energy <= 0 {
+		return MinerType{}, ErrInvalidMinerEnergy
+	} else if extraction <= 0 {
+		return MinerType{}, ErrInvalidMinerExtraction
+	} else if interval <= 0 {
+		return MinerType{}, ErrInvalidMinerInterval
+	} else if growth < 0 {
+		return MinerType{}, ErrInvalidMinerGrowth
+	}
+
 	return MinerType{
 		typeName:   typeName,
 		cost:       cost,
@@ -30,7 +52,7 @@ func NewMinerType(
 		extraction: extraction,
 		interval:   interval,
 		growth:     Coal(growth),
-	}
+	}, nil
 }
 
 type Miner struct {
@@ -48,7 +70,12 @@ func NewMiner(minerType MinerType) *Miner {
 
 // Метод на добычу угля
 func (m *Miner) Mine() (Coal, bool) {
-	coal := m.minerType.extraction + m.actionDone*int(m.minerType.growth)
+
+	if m.actionDone >= m.minerType.energy {
+		return 0, true
+	}
+
+	coal := int(m.minerType.extraction) + m.actionDone*int(m.minerType.growth)
 
 	m.actionDone++
 
@@ -58,6 +85,6 @@ func (m *Miner) Mine() (Coal, bool) {
 }
 
 // Метод на получения временного интервала добычи угля
-func (m *Miner) IntervalExtraction() time.Duration {
+func (m *Miner) MiningInterval() time.Duration {
 	return m.minerType.interval
 }

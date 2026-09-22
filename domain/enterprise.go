@@ -92,7 +92,7 @@ func (e *Enterprise) BuyEquipment(equipment EquipmentType) error {
 	}
 
 	if e.coal < eq.Cost {
-		return ErrNotEnoughCoal
+		return ErrEnterpriseNotEnoughCoal
 	}
 
 	e.coal -= eq.Cost
@@ -132,10 +132,19 @@ func (e *Enterprise) EquipmentsPurchased() []Equipment {
 }
 
 // Метод для найма шахтёра
-func (e *Enterprise) HireMiner(minerType MinerType) *Miner {
+func (e *Enterprise) HireMiner(minerType MinerType) (*Miner, error) {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
+	if e.coal < minerType.cost {
+		return &Miner{}, ErrEnterpriseNotEnoughCoal
+	}
+
+	e.coal -= minerType.cost
+
 	miner := NewMiner(minerType)
 
 	e.miners[miner.id] = miner
 
-	return miner
+	return miner, nil
 }
