@@ -7,34 +7,34 @@ import (
 )
 
 type MinerInfo struct {
-	id         uuid.UUID
-	typeName   MinerTypeName
-	name       string
-	cost       int
-	energy     int
-	extraction int
-	interval   time.Duration
-	growth     int
+	Id         uuid.UUID
+	TypeName   MinerTypeName
+	Name       string
+	Cost       Coal
+	LeftEnergy int
+	Extraction Coal
+	Interval   time.Duration
+	Growth     Coal
 }
 
 func newMinerInfo(
 	id uuid.UUID,
 	typeName MinerTypeName,
 	name string,
-	cost int,
-	energy int,
-	extraction int,
+	cost Coal,
+	leftEnergy int,
+	extraction Coal,
 	interval time.Duration,
-	growth int,
+	growth Coal,
 ) MinerInfo {
 	return MinerInfo{
-		id:         id,
-		typeName:   typeName,
-		name:       name,
-		cost:       cost,
-		energy:     energy,
-		extraction: extraction,
-		interval:   interval,
-		growth:     growth,
+		Id:         id,
+		TypeName:   typeName,
+		Name:       name,
+		Cost:       cost,
+		LeftEnergy: leftEnergy,
+		Extraction: extraction,
+		Interval:   interval,
+		Growth:     growth,
 	}
 }

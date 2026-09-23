@@ -151,6 +151,9 @@ func (e *Enterprise) HireMiner(minerType MinerType) (*Miner, error) {
 
 // Метод для получения шахтёров определённого типа
 func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
 	var result []MinerInfo
 
 	for _, miner := range e.miners {
@@ -163,7 +166,12 @@ func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
 }
 
 // Метод для получения не работающих шахтёров
+// тут возможна логическа гонка данных: между miner.isExhausted() и miner.info() - может вклинитьс miner.Mine()
+// Надо подумать как тут реализовать атомарную операцию
 func (e *Enterprise) ExhaustedMiners() []MinerInfo {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
 	var result []MinerInfo
 
 	for _, miner := range e.miners {
@@ -176,7 +184,12 @@ func (e *Enterprise) ExhaustedMiners() []MinerInfo {
 }
 
 // Метод для получения работающих шахтёров
+// тут возможна логическа гонка данных: между miner.isExhausted() и miner.info() - может вклинитьс miner.Mine()
+// Надо подумать как тут реализовать атомарную операцию
 func (e *Enterprise) AvailableMiners() []MinerInfo {
+	e.mtx.Lock()
+	defer e.mtx.Unlock()
+
 	var result []MinerInfo
 
 	for _, miner := range e.miners {

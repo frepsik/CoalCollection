@@ -135,16 +135,17 @@ func (m *Miner) info() MinerInfo {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
-	remainingEnergy := m.minerType.energy - m.actionDone
+	leftEnergy := m.minerType.energy - m.actionDone
+	currentExtraction := m.minerType.extraction + Coal(m.actionDone)*m.minerType.growth
 	minerInfo := newMinerInfo(
 		m.id,
 		m.minerType.typeName,
 		m.minerType.name,
-		int(m.minerType.cost),
-		remainingEnergy,
-		int(m.minerType.extraction),
+		m.minerType.cost,
+		leftEnergy,
+		currentExtraction,
 		m.minerType.interval,
-		int(m.minerType.growth),
+		m.minerType.growth,
 	)
 	return minerInfo
 }
