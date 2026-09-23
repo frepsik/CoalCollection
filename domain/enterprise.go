@@ -148,3 +148,42 @@ func (e *Enterprise) HireMiner(minerType MinerType) (*Miner, error) {
 
 	return miner, nil
 }
+
+// Метод для получения шахтёров определённого типа
+func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
+	var result []MinerInfo
+
+	for _, miner := range e.miners {
+		if miner.isType(minerTypeName) {
+			result = append(result, miner.info())
+		}
+	}
+
+	return result
+}
+
+// Метод для получения не работающих шахтёров
+func (e *Enterprise) ExhaustedMiners() []MinerInfo {
+	var result []MinerInfo
+
+	for _, miner := range e.miners {
+		if miner.isExhausted() {
+			result = append(result, miner.info())
+		}
+	}
+
+	return result
+}
+
+// Метод для получения работающих шахтёров
+func (e *Enterprise) AvailableMiners() []MinerInfo {
+	var result []MinerInfo
+
+	for _, miner := range e.miners {
+		if !(miner.isExhausted()) {
+			result = append(result, miner.info())
+		}
+	}
+
+	return result
+}

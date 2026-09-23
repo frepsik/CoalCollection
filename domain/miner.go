@@ -2,6 +2,7 @@ package domain
 
 import (
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -82,6 +83,7 @@ type Miner struct {
 	id         uuid.UUID
 	minerType  MinerType
 	actionDone int
+	mtx        sync.Mutex
 }
 
 func newMiner(minerType MinerType) *Miner {
@@ -93,6 +95,8 @@ func newMiner(minerType MinerType) *Miner {
 
 // Метод на добычу угля. true - в случае, если шахтёр не может работать (нет энергии более)
 func (m *Miner) Mine() (Coal, bool) {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
 
 	if m.actionDone >= m.minerType.energy {
 		return 0, true
@@ -110,4 +114,37 @@ func (m *Miner) Mine() (Coal, bool) {
 // Метод на получения временного интервала добычи угля
 func (m *Miner) MiningInterval() time.Duration {
 	return m.minerType.interval
+}
+
+// Метод на проверку типа шахтёра
+func (m *Miner) isType(minerTypeName MinerTypeName) bool {
+	return m.minerType.typeName == minerTypeName
+}
+
+// Метод для того, чтобы определить, шахтёр может работать или нет
+func (m *Miner) isExhausted() bool {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+
+	return m.actionDone >= m.minerType.energy
+}
+
+// Метод в котором произведём расчёт того, сколько осталось энергии,
+// а также соберём некоторый снимок по текущему шахтёру на вывод, чтобы не возвращать структуру, в рамках которой присутствует mtx
+func (m *Miner) info() MinerInfo {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+
+	remainingEnergy := m.minerType.energy - m.actionDone
+	minerInfo := newMinerInfo(
+		m.id,
+		m.minerType.typeName,
+		m.minerType.name,
+		int(m.minerType.cost),
+		remainingEnergy,
+		int(m.minerType.extraction),
+		m.minerType.interval,
+		int(m.minerType.growth),
+	)
+	return minerInfo
 }
