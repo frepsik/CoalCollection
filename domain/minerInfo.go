@@ -38,8 +38,3 @@ func newMinerInfo(
 		Growth:     growth,
 	}
 }
-
-// Структура позволяющая получить изменяемое состояние шахтёра
-type minerState struct {
-	actionDone int
-}
