@@ -80,10 +80,10 @@ func (mt *MinerType) validate() error {
 }
 
 type Miner struct {
-	id         uuid.UUID
-	minerType  MinerType
-	actionDone int
-	mtx        sync.Mutex
+	id        uuid.UUID
+	minerType MinerType
+	state     minerState
+	mtx       sync.Mutex
 }
 
 func newMiner(minerType MinerType) *Miner {
@@ -93,22 +93,12 @@ func newMiner(minerType MinerType) *Miner {
 	}
 }
 
-// Метод на добычу угля. true - в случае, если шахтёр не может работать (нет энергии более)
-func (m *Miner) Mine() (Coal, bool) {
+// Метод для безопаспного возврата текущего состояния шахтёра в качестве копии
+// (значение фиксированное, далее с этим снимком данных мы можем производить, какие-либо операции в связи с тем, что вернули копию, а оригинал может вполне уже измениться)
+func (m *Miner) currentState() minerState {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
-
-	if m.actionDone >= m.minerType.energy {
-		return 0, true
-	}
-
-	coal := m.minerType.extraction + Coal(m.actionDone)*m.minerType.growth
-
-	m.actionDone++
-
-	finishWorkMiner := m.actionDone >= m.minerType.energy
-
-	return Coal(coal), finishWorkMiner
+	return m.state
 }
 
 // Метод на получения временного интервала добычи угля
@@ -121,22 +111,36 @@ func (m *Miner) isType(minerTypeName MinerTypeName) bool {
 	return m.minerType.typeName == minerTypeName
 }
 
-// Метод для того, чтобы определить, шахтёр может работать или нет
-func (m *Miner) isExhausted() bool {
+// Метод для того, чтобы определить, шахтёр может работать или нет (работает именно с определённым состоянием шахтёра, которое уже не изменяется)
+func (m *Miner) isExhausted(state minerState) bool {
+	return state.actionDone >= m.minerType.energy
+}
+
+// Метод на добычу угля. true - в случае, если шахтёр не может работать (нет энергии более)
+// Работает напрямую с текущим экземпляром состояния шахтёра (имеет доступ к оригиналу m.state)
+func (m *Miner) Mine() (Coal, bool) {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
-	return m.actionDone >= m.minerType.energy
+	//На случай если две горутины одноврм
+	if m.isExhausted(m.state) {
+		return 0, true
+	}
+
+	coal := m.minerType.extraction + Coal(m.state.actionDone)*m.minerType.growth
+
+	m.state.actionDone++
+
+	return coal, m.isExhausted(m.state)
 }
 
 // Метод в котором произведём расчёт того, сколько осталось энергии,
-// а также соберём некоторый снимок по текущему шахтёру на вывод, чтобы не возвращать структуру, в рамках которой присутствует mtx
-func (m *Miner) info() MinerInfo {
-	m.mtx.Lock()
-	defer m.mtx.Unlock()
+// а также собираем некоторый снимок по текущему шахтёру на вывод, чтобы не возвращать структуру, в рамках которой присутствует mtx
+// (работает именно с определённым состоянием шахтёра, которое уже не изменяется)
+func (m *Miner) info(state minerState) MinerInfo {
+	leftEnergy := m.minerType.energy - state.actionDone
+	currentExtraction := m.minerType.extraction + Coal(state.actionDone)*m.minerType.growth
 
-	leftEnergy := m.minerType.energy - m.actionDone
-	currentExtraction := m.minerType.extraction + Coal(m.actionDone)*m.minerType.growth
 	minerInfo := newMinerInfo(
 		m.id,
 		m.minerType.typeName,

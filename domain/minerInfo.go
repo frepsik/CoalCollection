@@ -38,3 +38,8 @@ func newMinerInfo(
 		Growth:     growth,
 	}
 }
+
+// Структура позволяющая зафиксировать текущее состояние шахтёра
+type minerState struct {
+	actionDone int
+}

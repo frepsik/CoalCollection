@@ -157,8 +157,9 @@ func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
 	var result []MinerInfo
 
 	for _, miner := range e.miners {
+		minerState := miner.currentState()
 		if miner.isType(minerTypeName) {
-			result = append(result, miner.info())
+			result = append(result, miner.info(minerState))
 		}
 	}
 
@@ -175,8 +176,10 @@ func (e *Enterprise) ExhaustedMiners() []MinerInfo {
 	var result []MinerInfo
 
 	for _, miner := range e.miners {
-		if miner.isExhausted() {
-			result = append(result, miner.info())
+		minerState := miner.currentState()
+
+		if miner.isExhausted(minerState) {
+			result = append(result, miner.info(minerState))
 		}
 	}
 
@@ -193,8 +196,9 @@ func (e *Enterprise) AvailableMiners() []MinerInfo {
 	var result []MinerInfo
 
 	for _, miner := range e.miners {
-		if !(miner.isExhausted()) {
-			result = append(result, miner.info())
+		minerState := miner.currentState()
+		if !(miner.isExhausted(minerState)) {
+			result = append(result, miner.info(minerState))
 		}
 	}
 
