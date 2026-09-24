@@ -150,15 +150,18 @@ func (e *Enterprise) HireMiner(minerType MinerType) (*Miner, error) {
 }
 
 // Метод для получения шахтёров определённого типа
+// Здесь есть потенциально опасный момент, но сейчас проблемы нет. Вложенный вызов mtx, сначала блокируется один поток, потом внутри него, блокируется ещё один, есть такая вероятность,
+// что данный момент потом забудется и mtx вызовется на в обратном порядке, тогда произойдёт deadlock, если это всё произойдёт одновременно
 func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
 
+	//Надо будет сделать Loc только на безопасное получение копий адресов *Miner из map, и дальше пойти по этому слайса работать, чтобы избежать потенциального deadlock
 	var result []MinerInfo
 
 	for _, miner := range e.miners {
-		minerState := miner.currentState()
 		if miner.isType(minerTypeName) {
+			minerState := miner.currentState()
 			result = append(result, miner.info(minerState))
 		}
 	}
@@ -167,12 +170,13 @@ func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
 }
 
 // Метод для получения не работающих шахтёров
-// тут возможна логическа гонка данных: между miner.isExhausted() и miner.info() - может вклинитьс miner.Mine()
-// Надо подумать как тут реализовать атомарную операцию
+// Здесь есть потенциально опасный момент, но сейчас проблемы нет. Вложенный вызов mtx, сначала блокируется один поток, потом внутри него, блокируется ещё один, есть такая вероятность,
+// что данный момент потом забудется и mtx вызовется на в обратном порядке, тогда произойдёт deadlock, если это всё произойдёт одновременно
 func (e *Enterprise) ExhaustedMiners() []MinerInfo {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
 
+	//Надо будет сделать Loc только на безопасное получение копий адресов *Miner из map, и дальше пойти по этому слайса работать, чтобы избежать потенциального deadlock
 	var result []MinerInfo
 
 	for _, miner := range e.miners {
@@ -187,12 +191,13 @@ func (e *Enterprise) ExhaustedMiners() []MinerInfo {
 }
 
 // Метод для получения работающих шахтёров
-// тут возможна логическа гонка данных: между miner.isExhausted() и miner.info() - может вклинитьс miner.Mine()
-// Надо подумать как тут реализовать атомарную операцию
+// Здесь есть потенциально опасный момент, но сейчас проблемы нет. Вложенный вызов mtx, сначала блокируется один поток, потом внутри него, блокируется ещё один, есть такая вероятность,
+// что данный момент потом забудется и mtx вызовется на в обратном порядке, тогда произойдёт deadlock, если это всё произойдёт одновременно
 func (e *Enterprise) AvailableMiners() []MinerInfo {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
 
+	//Надо будет сделать Loc только на безопасное получение копий адресов *Miner из map, и дальше пойти по этому слайса работать, чтобы избежать потенциального deadlock
 	var result []MinerInfo
 
 	for _, miner := range e.miners {

@@ -79,6 +79,11 @@ func (mt *MinerType) validate() error {
 	return nil
 }
 
+// Структура позволяющая получить изменяемое состояние шахтёра
+type minerState struct {
+	actionDone int
+}
+
 type Miner struct {
 	id        uuid.UUID
 	minerType MinerType
@@ -90,7 +95,6 @@ func newMiner(minerType MinerType) *Miner {
 	return &Miner{
 		id:        uuid.New(),
 		minerType: minerType,
-		state:     minerState{0},
 	}
 }
 
