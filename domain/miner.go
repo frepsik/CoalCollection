@@ -90,6 +90,7 @@ func newMiner(minerType MinerType) *Miner {
 	return &Miner{
 		id:        uuid.New(),
 		minerType: minerType,
+		state:     minerState{0},
 	}
 }
 
