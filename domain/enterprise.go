@@ -153,7 +153,7 @@ func (e *Enterprise) HireMiner(minerType MinerType) (*Miner, error) {
 // Если бы не этот метод, то был бы потенциально опасный момент, но сейчас проблемы нет. Вложенный вызов mtx, сначала блокируется один поток, потом внутри него, блокируется ещё один, есть такая вероятность,
 // что данный момент потом забудется и mtx вызовется на в обратном порядке, тогда произойдёт deadlock, если это всё произойдёт одновременно
 // Используется в ExhaustedMiners(), MinersByType(), AvailableMiners()
-func (e *Enterprise) lockedMiners() []*Miner {
+func (e *Enterprise) listMiners() []*Miner {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
 
@@ -168,7 +168,7 @@ func (e *Enterprise) lockedMiners() []*Miner {
 
 // Метод для получения шахтёров определённого типа
 func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
-	miners := e.lockedMiners()
+	miners := e.listMiners()
 
 	var result []MinerInfo
 
@@ -184,7 +184,7 @@ func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
 
 // Метод для получения не работающих шахтёров
 func (e *Enterprise) ExhaustedMiners() []MinerInfo {
-	miners := e.lockedMiners()
+	miners := e.listMiners()
 
 	var result []MinerInfo
 
@@ -201,7 +201,7 @@ func (e *Enterprise) ExhaustedMiners() []MinerInfo {
 
 // Метод для получения работающих шахтёров
 func (e *Enterprise) AvailableMiners() []MinerInfo {
-	miners := e.lockedMiners()
+	miners := e.listMiners()
 
 	var result []MinerInfo
 
