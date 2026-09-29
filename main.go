@@ -1,25 +1,52 @@
 package main
 
 import (
-	"CoalCollection/service"
-	"context"
+	storage "CoalCollection/Storage"
 	"fmt"
-	"time"
+	"os"
+	"path/filepath"
 )
 
 func main() {
-	fmt.Println("Coal mine started")
+	// Получаем переменную окружения, чтобы её задать используется следующая команда: $env:COAL_CONFIG_DIR = "Путь"
+	configDir, exists := os.LookupEnv("COAL_CONFIG_DIR")
+	if !exists {
+		fmt.Println("Coal mine fail start")
+		return
+	}
 
-	rootCtx := context.Background()
+	// Собираем полный путь
+	minersPath := filepath.Join(configDir, "miners.json")
+	equipmentsPath := filepath.Join(configDir, "equipments.json")
 
-	gameService := service.NewGame(rootCtx)
+	minerStorage := storage.NewJSONStorage(minersPath)
+	equipmentsStorage := storage.NewJSONStorage(equipmentsPath)
 
-	gameService.Start()
+	minerTypes, err := minerStorage.LoadMinerTypes()
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	time.Sleep(10 * time.Second)
+	equipments, err := equipmentsStorage.LoadEquipments()
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	gameService.Shutdown()
+	fmt.Println(minerTypes)
+	fmt.Println(equipments)
 
-	fmt.Println("Статус игры", gameService.StatusEnterprise())
-	fmt.Println("Конец")
+	// fmt.Println("Coal mine started")
+
+	// rootCtx := context.Background()
+
+	// gameService := service.NewGame(rootCtx)
+
+	// gameService.Start()
+
+	// time.Sleep(10 * time.Second)
+
+	// gameService.Shutdown()
+
+	// fmt.Println("Статус игры", gameService.StatusEnterprise())
+	// fmt.Println("Конец")
 }

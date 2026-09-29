@@ -12,7 +12,7 @@ type JSONStorage struct {
 	path string
 }
 
-func NewJsonStorage(path string) JSONStorage {
+func NewJSONStorage(path string) JSONStorage {
 	return JSONStorage{
 		path: path,
 	}
@@ -73,21 +73,21 @@ func (js JSONStorage) LoadMinerTypes() (map[domain.MinerTypeName]domain.MinerTyp
 
 // Метод для получения Equipments из Json
 func (js JSONStorage) LoadEquipments() (map[domain.EquipmentType]*domain.Equipment, error) {
-	var equipmentsJson []EquipmentJSON
+	var equipmentsJSON []EquipmentJSON
 
-	if err := js.loadJSON(&equipmentsJson); err != nil {
+	if err := js.loadJSON(&equipmentsJSON); err != nil {
 		return nil, err
 	}
 
-	result := make(map[domain.EquipmentType]*domain.Equipment, len(equipmentsJson))
+	result := make(map[domain.EquipmentType]*domain.Equipment, len(equipmentsJSON))
 
-	for _, equipmentJson := range equipmentsJson {
-		equipmentType := domain.EquipmentType(equipmentJson.EquipmentType)
+	for _, equipmentJSON := range equipmentsJSON {
 
+		equipmentType := domain.EquipmentType(equipmentJSON.EquipmentType)
 		equipment, err := domain.NewEquipment(
 			equipmentType,
-			equipmentJson.Name,
-			domain.Coal(equipmentJson.Cost),
+			equipmentJSON.Name,
+			domain.Coal(equipmentJSON.Cost),
 		)
 		if err != nil {
 			return nil, fmt.Errorf("%w: error create equipment", err)
