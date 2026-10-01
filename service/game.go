@@ -12,30 +12,21 @@ type Game struct {
 	cancelGame context.CancelFunc
 	wg         sync.WaitGroup
 	enterprise *domain.Enterprise
+	minerTypes map[domain.MinerTypeName]domain.MinerType
 }
 
 // Конструктор создания экземпляра самой игры
-func NewGame(ctx context.Context) *Game {
+func NewGame(
+	ctx context.Context,
+	equipments map[domain.EquipmentType]*domain.Equipment,
+	minerTypes map[domain.MinerTypeName]domain.MinerType,
+) *Game {
 	ctxGame, cancelGame := context.WithCancel(ctx)
-
-	equipments := map[domain.EquipmentType]*domain.Equipment{
-		domain.Pickaxe: {
-			// name: "Кирка",
-			// Cost: 3000,
-		},
-		domain.Ventilation: {
-			// Name: "Вентиляция",
-			// Cost: 15000,
-		},
-		domain.Trolleys: {
-			// Name: "Вагонетки",
-			// Cost: 50000,
-		},
-	}
 
 	return &Game{
 		ctxGame:    ctxGame,
 		cancelGame: cancelGame,
+		minerTypes: minerTypes,
 		enterprise: domain.NewEnterprise(equipments),
 	}
 }
