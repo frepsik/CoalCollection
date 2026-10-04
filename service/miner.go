@@ -22,13 +22,14 @@ func (g *Game) startMinerMine(
 			select {
 			case <-ticker.C:
 				coal, isExhausted := miner.Mine()
+				if coal != 0 {
+					g.enterprise.AddCoal(coal)
+				}
 				if isExhausted {
 					cancelMine()
 					return
 				}
-				g.enterprise.AddCoal(coal)
-			case <-g.ctxGame.Done():
-				return
+
 			case <-ctx.Done():
 				return
 			}
