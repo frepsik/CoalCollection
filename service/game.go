@@ -3,7 +3,6 @@ package service
 import (
 	"CoalCollection/domain"
 	"context"
-	"errors"
 	"sync"
 	"time"
 )
@@ -55,16 +54,15 @@ func (g *Game) HireMiner(typeMiner string) error {
 
 	minerType, exists := g.minerTypes[minerTypeName]
 	if !exists {
-		return errors.New("Invalid type miner name")
+		return ErrMinerTypeNotFound
 	}
 
 	miner, err := g.enterprise.HireMiner(minerType)
 	if err != nil {
 		return err
 	}
-	ctxMiner, cancleMine := context.WithCancel(g.ctxGame)
 
-	g.startMinerMine(miner, ctxMiner, cancleMine)
+	g.startMinerMine(miner)
 
 	return nil
 }

@@ -8,12 +8,13 @@ import (
 
 func (g *Game) startMinerMine(
 	miner *domain.Miner,
-	ctx context.Context,
-	cancelMine context.CancelFunc,
 ) {
+	ctxMiner, cancelMine := context.WithCancel(g.ctxGame)
+
 	g.wg.Add(1)
 	go func() {
 		defer g.wg.Done()
+		defer cancelMine()
 
 		ticker := time.NewTicker(miner.MiningInterval())
 		defer ticker.Stop()
@@ -26,11 +27,10 @@ func (g *Game) startMinerMine(
 					g.enterprise.AddCoal(coal)
 				}
 				if isExhausted {
-					cancelMine()
 					return
 				}
 
-			case <-ctx.Done():
+			case <-ctxMiner.Done():
 				return
 			}
 		}
