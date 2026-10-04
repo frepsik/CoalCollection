@@ -59,7 +59,7 @@ func (g *Game) startMinerMine(
 }
 
 // Метод для возвращаения списка типов шахтёров, чтобы пользователь мог ознакомиться, что ему можно приобрести
-func (g *Game) MinersType(minerTypeName string) []domain.MinerType {
+func (g *Game) MinersType() []domain.MinerType {
 	result := make([]domain.MinerType, 0, len(g.minerTypes))
 	for _, miner := range g.minerTypes {
 		result = append(result, miner)
@@ -70,13 +70,13 @@ func (g *Game) MinersType(minerTypeName string) []domain.MinerType {
 /// У этих трёх методов ниже надо добавить проверку на то, что существует ли вообщем хоть один шахтёр, может список пустой
 
 // Метод для получения работающих сейчас шахтёров
-func (g *Game) AvailableMiners() ([]domain.MinerInfo, error) {
-	return g.AvailableMiners()
+func (g *Game) AvailableMiners() []domain.MinerInfo {
+	return g.enterprise.AvailableMiners()
 }
 
 // Метод для получения не работающих сейчас шахтёров
-func (g *Game) ExhaustedMiners() ([]domain.MinerInfo, error) {
-	return g.ExhaustedMiners()
+func (g *Game) ExhaustedMiners() []domain.MinerInfo {
+	return g.enterprise.ExhaustedMiners()
 }
 
 // Метод для получения шахтёров по определённому типу
@@ -86,5 +86,5 @@ func (g *Game) MinersByType(typeMiner string) ([]domain.MinerInfo, error) {
 	if !exists {
 		return nil, ErrMinerTypeNotFound
 	}
-	return g.enterprise.MinersByType(typeMinerName)
+	return g.enterprise.MinersByType(typeMinerName), nil
 }
