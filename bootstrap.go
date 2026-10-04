@@ -8,6 +8,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type gameConfig struct {
@@ -19,8 +20,8 @@ type gameConfig struct {
 func loadGameConfig() (gameConfig, error) {
 	// Получаем переменную окружения, чтобы её задать используется следующая команда: $env:COAL_CONFIG_DIR = "Путь"
 	configDir, exists := os.LookupEnv("COAL_CONFIG_DIR")
-	if !exists {
-		return gameConfig{}, errors.New("Coal mine fail start")
+	if !exists || strings.TrimSpace(configDir) == "" {
+		return gameConfig{}, errors.New("COAL_CONFIG_DIR is not set")
 	}
 
 	// Собираем полный путь

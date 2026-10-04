@@ -8,17 +8,16 @@ import (
 
 func main() {
 
-	fmt.Println("Coal mine started")
-
 	rootCtx := context.Background()
 
 	game, err := buildGame(rootCtx)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	game.Start()
-
+	fmt.Println("Coal mine started")
 	time.Sleep(10 * time.Second)
 
 	game.Shutdown()
