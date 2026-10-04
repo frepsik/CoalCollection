@@ -3,6 +3,7 @@ package service
 import (
 	"CoalCollection/domain"
 	"context"
+	"errors"
 	"sync"
 	"time"
 )
@@ -31,26 +32,6 @@ func NewGame(
 	}
 }
 
-// Запуск пассивного получения угля
-func (g *Game) startPassiveIncome() {
-	g.wg.Add(1)
-	go func() {
-		defer g.wg.Done()
-
-		ticker := time.NewTicker(time.Second)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-ticker.C:
-				g.enterprise.AddCoal(1)
-			case <-g.ctxGame.Done():
-				return
-			}
-		}
-	}()
-}
-
 // Метод отвечающий за старт игры, где мы даём начало времени и запускаем пассивное получение угля
 func (g *Game) Start() {
 	g.enterprise.Start(time.Now())
@@ -69,7 +50,20 @@ func (g *Game) Shutdown() {
 	g.enterprise.Finish(finisheAt)
 }
 
-// Метод позволяющий узнать, текущий статус, по тому, сколько идёт игра, и сколько сейчас угля, сюда дальше ещё надо интегрировать шахтёров и оборудование, но пока временно так
-func (g *Game) StatusEnterprise() domain.EnterpriseStatus {
-	return g.enterprise.Status()
+func (g *Game) HireMiner(typeMiner string) error {
+	minerTypeName := domain.MinerTypeName(typeMiner)
+
+	minerType, exists := g.minerTypes[minerTypeName]
+	if !exists {
+		return errors.New("Invalid type miner name")
+	}
+
+	miner, err := g.enterprise.HireMiner(minerType)
+	if err != nil {
+		return err
+	}
+	ctxMiner, cancleMine := context.WithCancel(g.ctxGame)
+
+	g.startMinerMine(miner, ctxMiner, cancleMine)
+	return nil
 }
