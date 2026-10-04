@@ -86,5 +86,5 @@ func (g *Game) MinersByType(typeMiner string) ([]domain.MinerInfo, error) {
 	if !exists {
 		return nil, ErrMinerTypeNotFound
 	}
-	return g.enterprise.MinersByType(typeMinerName), nil
+	return g.enterprise.MinersByType(typeMinerName)
 }

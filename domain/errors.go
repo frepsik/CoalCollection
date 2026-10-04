@@ -7,6 +7,7 @@ var (
 	ErrEquipmentNotFound         = errors.New("equipment not found")
 	ErrEnterpriseNotEnoughCoal   = errors.New("not enough coal")
 	ErrEquipmentAlreadyPurchased = errors.New("equipment already purchased")
+	ErrMinersIsEmpty             = errors.New("miners is empty")
 
 	// Equipment
 	ErrInvalidEquipmentTypeName = errors.New("invalid type name equipment")

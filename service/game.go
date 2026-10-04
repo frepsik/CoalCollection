@@ -48,21 +48,3 @@ func (g *Game) Shutdown() {
 
 	g.enterprise.Finish(finisheAt)
 }
-
-func (g *Game) HireMiner(typeMiner string) error {
-	minerTypeName := domain.MinerTypeName(typeMiner)
-
-	minerType, exists := g.minerTypes[minerTypeName]
-	if !exists {
-		return ErrMinerTypeNotFound
-	}
-
-	miner, err := g.enterprise.HireMiner(minerType)
-	if err != nil {
-		return err
-	}
-
-	g.startMinerMine(miner)
-
-	return nil
-}

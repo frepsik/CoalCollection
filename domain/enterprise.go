@@ -153,9 +153,14 @@ func (e *Enterprise) HireMiner(minerType MinerType) (*Miner, error) {
 // Если бы не этот метод, то был бы потенциально опасный момент, но сейчас проблемы нет. Вложенный вызов mtx, сначала блокируется один поток, потом внутри него, блокируется ещё один, есть такая вероятность,
 // что данный момент потом забудется и mtx вызовется на в обратном порядке, тогда произойдёт deadlock, если это всё произойдёт одновременно
 // Используется в ExhaustedMiners(), MinersByType(), AvailableMiners()
-func (e *Enterprise) listMiners() []*Miner {
+func (e *Enterprise) listMiners() ([]*Miner, error) {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
+
+	// Функционал, что предоставляет возможность определить есть ли хоть один купленынй шахтёр
+	if !(len(e.miners) > 0) {
+		return nil, ErrMinersIsEmpty
+	}
 
 	result := make([]*Miner, 0, len(e.miners))
 
@@ -163,13 +168,15 @@ func (e *Enterprise) listMiners() []*Miner {
 		result = append(result, miner)
 	}
 
-	return result
+	return result, nil
 }
 
 // Метод для получения шахтёров определённого типа
-func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
-	miners := e.listMiners()
-
+func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) ([]MinerInfo, error) {
+	miners, err := e.listMiners()
+	if err != nil {
+		return nil, err
+	}
 	var result []MinerInfo
 
 	for _, miner := range miners {
@@ -179,13 +186,15 @@ func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
 		}
 	}
 
-	return result
+	return result, nil
 }
 
 // Метод для получения не работающих шахтёров
-func (e *Enterprise) ExhaustedMiners() []MinerInfo {
-	miners := e.listMiners()
-
+func (e *Enterprise) ExhaustedMiners() ([]MinerInfo, error) {
+	miners, err := e.listMiners()
+	if err != nil {
+		return nil, err
+	}
 	var result []MinerInfo
 
 	for _, miner := range miners {
@@ -196,13 +205,15 @@ func (e *Enterprise) ExhaustedMiners() []MinerInfo {
 		}
 	}
 
-	return result
+	return result, nil
 }
 
 // Метод для получения работающих шахтёров
-func (e *Enterprise) AvailableMiners() []MinerInfo {
-	miners := e.listMiners()
-
+func (e *Enterprise) AvailableMiners() ([]MinerInfo, error) {
+	miners, err := e.listMiners()
+	if err != nil {
+		return nil, err
+	}
 	var result []MinerInfo
 
 	for _, miner := range miners {
@@ -212,5 +223,5 @@ func (e *Enterprise) AvailableMiners() []MinerInfo {
 		}
 	}
 
-	return result
+	return result, nil
 }
