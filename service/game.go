@@ -65,5 +65,6 @@ func (g *Game) HireMiner(typeMiner string) error {
 	ctxMiner, cancleMine := context.WithCancel(g.ctxGame)
 
 	g.startMinerMine(miner, ctxMiner, cancleMine)
+
 	return nil
 }
