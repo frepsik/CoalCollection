@@ -1,6 +1,6 @@
 package storage
 
-type MinerTypeJSON struct {
+type minerTypeJSON struct {
 	TypeName   string `json:"typeName"`
 	Name       string `json:"name"`
 	Cost       int    `json:"cost"`
