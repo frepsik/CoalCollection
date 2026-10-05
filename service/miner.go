@@ -67,8 +67,6 @@ func (g *Game) MinersType() []domain.MinerType {
 	return result
 }
 
-/// У этих трёх методов ниже надо добавить проверку на то, что существует ли вообщем хоть один шахтёр, может список пустой
-
 // Метод для получения работающих сейчас шахтёров
 func (g *Game) AvailableMiners() []domain.MinerInfo {
 	return g.enterprise.AvailableMiners()

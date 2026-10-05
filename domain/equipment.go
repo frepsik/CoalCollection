@@ -2,39 +2,38 @@ package domain
 
 import "strings"
 
-type EquipmentType string
+type EquipmentTypeName string
 
 const (
-	Pickaxe     EquipmentType = "pickaxe"
-	Ventilation EquipmentType = "ventilation"
-	Trolleys    EquipmentType = "trolleys"
+	Pickaxe     EquipmentTypeName = "pickaxe"
+	Ventilation EquipmentTypeName = "ventilation"
+	Trolleys    EquipmentTypeName = "trolleys"
 )
 
-type Equipment struct {
-	equipmentType EquipmentType
-	name          string
-	cost          Coal
-	purchased     bool
+type EquipmentType struct {
+	equipmentTypeName EquipmentTypeName
+	name              string
+	cost              Coal
 }
 
-func NewEquipment(equipmentType EquipmentType, equipmentName string, costEquipment Coal) (*Equipment, error) {
+func NewEquipmentType(equipmentTypeName EquipmentTypeName, equipmentName string, costEquipment Coal) (EquipmentType, error) {
 
-	equipment := &Equipment{
-		equipmentType: equipmentType,
-		name:          equipmentName,
-		cost:          costEquipment,
+	equipment := EquipmentType{
+		equipmentTypeName: equipmentTypeName,
+		name:              equipmentName,
+		cost:              costEquipment,
 	}
 
 	if err := equipment.validate(); err != nil {
-		return nil, err
+		return EquipmentType{}, err
 	}
 
 	return equipment, nil
 }
 
 // Небольшой валидатор аргументов оборудования
-func (e *Equipment) validate() error {
-	if !(e.equipmentType == Pickaxe || e.equipmentType == Ventilation || e.equipmentType == Trolleys) {
+func (e *EquipmentType) validate() error {
+	if !(e.equipmentTypeName == Pickaxe || e.equipmentTypeName == Ventilation || e.equipmentTypeName == Trolleys) {
 		return ErrInvalidEquipmentTypeName
 	}
 	if strings.TrimSpace(e.name) == "" {
@@ -44,4 +43,38 @@ func (e *Equipment) validate() error {
 		return ErrInvalidEquipmentCost
 	}
 	return nil
+}
+
+// Структура для состояния в рамках игры
+type Equipment struct {
+	equipmentTypeName EquipmentTypeName
+	name              string
+	cost              Coal
+	purchased         bool
+}
+
+// Конструктор осуществляющий создание экземпляра оборудования по указателю, в связи с необходимость отслеживания его сотсояния
+func NewEquipment(equipmentType EquipmentType) *Equipment {
+	return &Equipment{
+		equipmentTypeName: equipmentType.equipmentTypeName,
+		name:              equipmentType.name,
+		cost:              equipmentType.cost,
+	}
+}
+
+// Структура для вывода состояния купленного/не купленного оборудования на момент игры
+type EquipmentInfo struct {
+	EquipmentTypeName EquipmentTypeName
+	Name              string
+	Cost              Coal
+	Purchased         bool
+}
+
+func newEquipmentInfo(equipment Equipment) EquipmentInfo {
+	return EquipmentInfo{
+		EquipmentTypeName: equipment.equipmentTypeName,
+		Name:              equipment.name,
+		Cost:              equipment.cost,
+		Purchased:         equipment.purchased,
+	}
 }

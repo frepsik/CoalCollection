@@ -14,12 +14,12 @@ type Enterprise struct {
 	mtx        sync.Mutex
 	startedAt  time.Time
 	finishedAt time.Time
-	equipments map[EquipmentType]*Equipment
+	equipments map[EquipmentTypeName]*Equipment
 	miners     map[uuid.UUID]*Miner
 }
 
 // Конструктор для структуры Enterprise
-func NewEnterprise(equipments map[EquipmentType]*Equipment) *Enterprise {
+func NewEnterprise(equipments map[EquipmentTypeName]*Equipment) *Enterprise {
 	miners := make(map[uuid.UUID]*Miner)
 	return &Enterprise{
 		equipments: equipments,
@@ -78,11 +78,11 @@ func (e *Enterprise) Status() EnterpriseStatus {
 }
 
 // Метод приобретения оборудования
-func (e *Enterprise) BuyEquipment(equipment EquipmentType) error {
+func (e *Enterprise) BuyEquipment(equipmentTypeName EquipmentTypeName) error {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
 
-	eq, ok := e.equipments[equipment]
+	eq, ok := e.equipments[equipmentTypeName]
 	if !ok {
 		return ErrEquipmentNotFound
 	}
@@ -101,30 +101,32 @@ func (e *Enterprise) BuyEquipment(equipment EquipmentType) error {
 	return nil
 }
 
-// Метод для получения всего оборудования
-func (e *Enterprise) Equipments() []Equipment {
+// Метод для получения приобретённого оборудования
+func (e *Enterprise) EquipmentsPurchased() []EquipmentInfo {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
 
-	result := make([]Equipment, 0, len(e.equipments))
+	result := make([]EquipmentInfo, 0, len(e.equipments))
 
 	for _, equipment := range e.equipments {
-		result = append(result, *equipment)
+		if equipment.purchased {
+			result = append(result, newEquipmentInfo(*equipment))
+		}
 	}
 
 	return result
 }
 
-// Метод для получения приобретённого оборудования
-func (e *Enterprise) EquipmentsPurchased() []Equipment {
+// Метод для получения не приобретённого оборудования
+func (e *Enterprise) EquipmentsNotPurchased() []EquipmentInfo {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
 
-	result := make([]Equipment, 0, len(e.equipments))
+	result := make([]EquipmentInfo, 0, len(e.equipments))
 
 	for _, equipment := range e.equipments {
-		if equipment.purchased {
-			result = append(result, *equipment)
+		if !equipment.purchased {
+			result = append(result, newEquipmentInfo(*equipment))
 		}
 	}
 

@@ -13,7 +13,7 @@ import (
 
 type gameConfig struct {
 	minerTypes map[domain.MinerTypeName]domain.MinerType
-	equipments map[domain.EquipmentType]*domain.Equipment
+	equipments map[domain.EquipmentTypeName]domain.EquipmentType
 }
 
 // Метод подгружающий игровой конфиг

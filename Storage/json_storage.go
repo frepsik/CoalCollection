@@ -72,19 +72,19 @@ func (js JSONStorage) LoadMinerTypes() (map[domain.MinerTypeName]domain.MinerTyp
 }
 
 // Метод для получения Equipments из Json
-func (js JSONStorage) LoadEquipments() (map[domain.EquipmentType]*domain.Equipment, error) {
+func (js JSONStorage) LoadEquipments() (map[domain.EquipmentTypeName]domain.EquipmentType, error) {
 	var equipmentsJSON []EquipmentJSON
 
 	if err := js.loadJSON(&equipmentsJSON); err != nil {
 		return nil, err
 	}
 
-	result := make(map[domain.EquipmentType]*domain.Equipment, len(equipmentsJSON))
+	result := make(map[domain.EquipmentTypeName]domain.EquipmentType, len(equipmentsJSON))
 
 	for _, equipmentJSON := range equipmentsJSON {
 
-		equipmentType := domain.EquipmentType(equipmentJSON.EquipmentType)
-		equipment, err := domain.NewEquipment(
+		equipmentType := domain.EquipmentTypeName(equipmentJSON.EquipmentType)
+		equipment, err := domain.NewEquipmentType(
 			equipmentType,
 			equipmentJSON.Name,
 			domain.Coal(equipmentJSON.Cost),
