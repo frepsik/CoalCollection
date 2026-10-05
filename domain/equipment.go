@@ -47,18 +47,14 @@ func (e *EquipmentType) validate() error {
 
 // Структура для состояния в рамках игры
 type Equipment struct {
-	equipmentTypeName EquipmentTypeName
-	name              string
-	cost              Coal
-	purchased         bool
+	equipmentType EquipmentType
+	purchased     bool
 }
 
 // Конструктор осуществляющий создание экземпляра оборудования по указателю, в связи с необходимость отслеживания его сотсояния
 func NewEquipment(equipmentType EquipmentType) *Equipment {
 	return &Equipment{
-		equipmentTypeName: equipmentType.equipmentTypeName,
-		name:              equipmentType.name,
-		cost:              equipmentType.cost,
+		equipmentType: equipmentType,
 	}
 }
 
@@ -72,9 +68,9 @@ type EquipmentInfo struct {
 
 func newEquipmentInfo(equipment Equipment) EquipmentInfo {
 	return EquipmentInfo{
-		EquipmentTypeName: equipment.equipmentTypeName,
-		Name:              equipment.name,
-		Cost:              equipment.cost,
+		EquipmentTypeName: equipment.equipmentType.equipmentTypeName,
+		Name:              equipment.equipmentType.name,
+		Cost:              equipment.equipmentType.cost,
 		Purchased:         equipment.purchased,
 	}
 }

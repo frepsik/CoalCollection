@@ -91,11 +91,11 @@ func (e *Enterprise) BuyEquipment(equipmentTypeName EquipmentTypeName) error {
 		return ErrEquipmentAlreadyPurchased
 	}
 
-	if e.coal < eq.cost {
+	if e.coal < eq.equipmentType.cost {
 		return ErrEnterpriseNotEnoughCoal
 	}
 
-	e.coal -= eq.cost
+	e.coal -= eq.equipmentType.cost
 
 	eq.purchased = true
 	return nil

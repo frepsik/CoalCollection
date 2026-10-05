@@ -36,7 +36,7 @@ func loadGameConfig() (gameConfig, error) {
 		return gameConfig{}, err
 	}
 
-	equipments, err := equipmentsStorage.LoadEquipments()
+	equipments, err := equipmentsStorage.LoadEquipmentTypes()
 	if err != nil {
 		return gameConfig{}, err
 	}

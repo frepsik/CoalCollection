@@ -35,7 +35,7 @@ func (js JSONStorage) loadJSON(destination any) error {
 
 // Метод для получения списка типов TypeMiner из Json
 func (js JSONStorage) LoadMinerTypes() (map[domain.MinerTypeName]domain.MinerType, error) {
-	var minersJSON []MinerTypeJSON
+	var minersJSON []minerTypeJSON
 	if err := js.loadJSON(&minersJSON); err != nil {
 		return nil, err
 	}
@@ -72,8 +72,8 @@ func (js JSONStorage) LoadMinerTypes() (map[domain.MinerTypeName]domain.MinerTyp
 }
 
 // Метод для получения Equipments из Json
-func (js JSONStorage) LoadEquipments() (map[domain.EquipmentTypeName]domain.EquipmentType, error) {
-	var equipmentsJSON []EquipmentJSON
+func (js JSONStorage) LoadEquipmentTypes() (map[domain.EquipmentTypeName]domain.EquipmentType, error) {
+	var equipmentsJSON []equipmentJSON
 
 	if err := js.loadJSON(&equipmentsJSON); err != nil {
 		return nil, err
