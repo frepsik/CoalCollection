@@ -22,3 +22,8 @@ func (g *Game) EquipmentsPurchased() []domain.EquipmentInfo {
 func (g *Game) EquipmentsNotPurchased() []domain.EquipmentInfo {
 	return g.enterprise.EquipmentsNotPurchased()
 }
+
+// Метод для покупки оборудования в service
+func (g *Game) Buy(equipmentTypeName domain.EquipmentTypeName) error {
+	return g.enterprise.BuyEquipment(equipmentTypeName)
+}

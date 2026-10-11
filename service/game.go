@@ -24,17 +24,12 @@ func NewGame(
 ) *Game {
 	ctxGame, cancelGame := context.WithCancel(ctx)
 
-	equipments := make(map[domain.EquipmentTypeName]*domain.Equipment, len(equipmentTypes))
-	for equipmentTypeName, equipmentType := range equipmentTypes {
-		equipments[equipmentTypeName] = domain.NewEquipment(equipmentType)
-	}
-
 	return &Game{
 		ctxGame:        ctxGame,
 		cancelGame:     cancelGame,
 		minerTypes:     minerTypes,
 		equipmentTypes: equipmentTypes,
-		enterprise:     domain.NewEnterprise(equipments),
+		enterprise:     domain.NewEnterprise(equipmentTypes),
 	}
 }
 
@@ -48,10 +43,10 @@ func (g *Game) Start() {
 // на то что, всё ли оборудование куплено, сколько времени там затратилось на всё это
 func (g *Game) Shutdown() {
 	//Фиксируем окончание игры сначал, то есть тот момент, когда пользователь подал сигнал на завершение
-	finisheAt := time.Now()
+	finishedAt := time.Now()
 
 	g.cancelGame()
 	g.wg.Wait()
 
-	g.enterprise.Finish(finisheAt)
+	g.enterprise.Finish(finishedAt)
 }

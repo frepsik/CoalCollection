@@ -3,6 +3,8 @@ package domain
 import "time"
 
 type EnterpriseStatus struct {
-	Coal     Coal
-	WorkTime time.Duration
+	Coal       Coal
+	WorkTime   time.Duration
+	Equipments []EquipmentInfo
+	Miners     []MinerInfo
 }

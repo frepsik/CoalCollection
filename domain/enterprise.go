@@ -19,8 +19,14 @@ type Enterprise struct {
 }
 
 // Конструктор для структуры Enterprise
-func NewEnterprise(equipments map[EquipmentTypeName]*Equipment) *Enterprise {
+func NewEnterprise(equipmentTypes map[EquipmentTypeName]EquipmentType) *Enterprise {
 	miners := make(map[uuid.UUID]*Miner)
+
+	equipments := make(map[EquipmentTypeName]*Equipment, len(equipmentTypes))
+	for equipmentTypeName, equipmentType := range equipmentTypes {
+		equipments[equipmentTypeName] = NewEquipment(equipmentType)
+	}
+
 	return &Enterprise{
 		equipments: equipments,
 		miners:     miners,
@@ -70,10 +76,37 @@ func (e *Enterprise) workTime(now time.Time) time.Duration {
 // Метод который будет собирать текущую информацию по работе предприятия, в последствии предполагаю надо дополнить
 func (e *Enterprise) Status() EnterpriseStatus {
 	e.mtx.Lock()
-	defer e.mtx.Unlock()
+
+	coal := e.coal
+
+	// Получаем equipments под вывод
+	equipmentsResult := make([]EquipmentInfo, 0, len(e.equipments))
+	for _, equipment := range e.equipments {
+		equipmentsResult = append(equipmentsResult, newEquipmentInfo(*equipment))
+	}
+
+	// Собираем отдельный слайс с *Miner, чтобы напрямую не работать с map, и не создать deadlock
+	minersList := make([]*Miner, 0, len(e.miners))
+	for _, miner := range e.miners {
+		minersList = append(minersList, miner)
+	}
+
+	workTime := e.workTime(time.Now())
+
+	// Разблокируем до конца всей функции, чтобы отработало в две фазы, сначала Lock на элеметы enterprise, потом Lock у самого Miner
+	e.mtx.Unlock()
+
+	minerResult := make([]MinerInfo, 0, len(minersList))
+	for _, miner := range minersList {
+		minerCurrentState := miner.currentState()
+		minerResult = append(minerResult, miner.info(minerCurrentState))
+	}
 
 	return EnterpriseStatus{
-		Coal: e.coal, WorkTime: e.workTime(time.Now()),
+		Coal:       coal,
+		WorkTime:   workTime,
+		Equipments: equipmentsResult,
+		Miners:     minerResult,
 	}
 }
 
