@@ -38,3 +38,26 @@ func newMinerInfo(
 		Growth:     growth,
 	}
 }
+
+// Структура под вывод данных в Json
+type MinerTypesInfo struct {
+	TypeName   MinerTypeName
+	Name       string
+	Cost       Coal
+	Energy     int
+	Extraction Coal
+	Interval   time.Duration
+	Growth     Coal
+}
+
+func NewMinerTypesInfo(minerType MinerType) MinerTypesInfo {
+	return MinerTypesInfo{
+		TypeName:   minerType.typeName,
+		Name:       minerType.name,
+		Cost:       minerType.cost,
+		Energy:     minerType.energy,
+		Extraction: minerType.extraction,
+		Interval:   minerType.interval,
+		Growth:     minerType.growth,
+	}
+}

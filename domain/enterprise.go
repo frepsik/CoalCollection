@@ -205,7 +205,7 @@ func (e *Enterprise) listMiners() []*Miner {
 func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
 	miners := e.listMiners()
 
-	var result []MinerInfo
+	result := make([]MinerInfo, 0, len(miners))
 
 	for _, miner := range miners {
 		if miner.isType(minerTypeName) {
@@ -221,7 +221,7 @@ func (e *Enterprise) MinersByType(minerTypeName MinerTypeName) []MinerInfo {
 func (e *Enterprise) ExhaustedMiners() []MinerInfo {
 	miners := e.listMiners()
 
-	var result []MinerInfo
+	result := make([]MinerInfo, 0, len(miners))
 
 	for _, miner := range miners {
 		minerState := miner.currentState()
@@ -238,7 +238,7 @@ func (e *Enterprise) ExhaustedMiners() []MinerInfo {
 func (e *Enterprise) AvailableMiners() []MinerInfo {
 	miners := e.listMiners()
 
-	var result []MinerInfo
+	result := make([]MinerInfo, 0, len(miners))
 
 	for _, miner := range miners {
 		minerState := miner.currentState()

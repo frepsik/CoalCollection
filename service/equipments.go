@@ -24,6 +24,12 @@ func (g *Game) EquipmentsNotPurchased() []domain.EquipmentInfo {
 }
 
 // Метод для покупки оборудования в service
-func (g *Game) Buy(equipmentTypeName domain.EquipmentTypeName) error {
+func (g *Game) BuyEquipment(equipmentType string) error {
+	equipmentTypeName := domain.EquipmentTypeName(equipmentType)
+	_, exists := g.equipmentTypes[equipmentTypeName]
+	if !exists {
+		return ErrEquipmentTypeNotFound
+	}
+
 	return g.enterprise.BuyEquipment(equipmentTypeName)
 }
