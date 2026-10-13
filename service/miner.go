@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Метод необходиый для найма шахтёра и инициализации его как горутины посредствам
+// Метод необходимый для найма шахтёра и инициализации его как горутины посредствам
 // startMinerMine(miner)
 func (g *Game) HireMiner(typeMiner string) error {
 	minerTypeName := domain.MinerTypeName(typeMiner)
@@ -58,7 +58,7 @@ func (g *Game) startMinerMine(
 	}()
 }
 
-// Метод для возвращаения списка типов шахтёров, чтобы пользователь мог ознакомиться, что ему можно приобрести
+// Метод для возвращения списка типов шахтёров, чтобы пользователь мог ознакомиться, что ему можно приобрести
 func (g *Game) MinersType() []domain.MinerType {
 	result := make([]domain.MinerType, 0, len(g.minerTypes))
 	for _, miner := range g.minerTypes {

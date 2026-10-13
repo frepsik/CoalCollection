@@ -17,6 +17,7 @@ func newEquipmentInfo(equipment Equipment) EquipmentInfo {
 	}
 }
 
+// Структура под вывод данных в Json
 type EquipmentTypesInfo struct {
 	EquipmentTypeName EquipmentTypeName
 	Name              string

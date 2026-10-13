@@ -48,7 +48,7 @@ func (e *Enterprise) Coal() Coal {
 	return e.coal
 }
 
-// Добавил навсякий случай, вдруг потом захочу расширить логику, например, что-то параллельно будет запускаться вместе с пасивным получением угля в секунду
+// Добавил на всякий случай, вдруг потом захочу расширить логику, например, что-то параллельно будет запускаться вместе с пассивным получением угля в секунду
 func (e *Enterprise) Start(at time.Time) {
 	e.mtx.Lock()
 	defer e.mtx.Unlock()
@@ -70,7 +70,7 @@ func (e *Enterprise) workTime(now time.Time) time.Duration {
 	if e.finishedAt.IsZero() {
 		return now.Sub(e.startedAt)
 	}
-	return e.finishedAt.Sub(e.startedAt) //Sub - берёт от текущешего времнеи и вычитает то, что передадим в аргументе
+	return e.finishedAt.Sub(e.startedAt) //Sub - берёт от текущего времени и вычитает то, что передадим в аргументе
 }
 
 // Метод который будет собирать текущую информацию по работе предприятия, в последствии предполагаю надо дополнить
@@ -93,7 +93,7 @@ func (e *Enterprise) Status() EnterpriseStatus {
 
 	workTime := e.workTime(time.Now())
 
-	// Разблокируем до конца всей функции, чтобы отработало в две фазы, сначала Lock на элеметы enterprise, потом Lock у самого Miner
+	// Разблокируем до конца всей функции, чтобы отработало в две фазы, сначала Lock на элементы enterprise, потом Lock у самого Miner
 	e.mtx.Unlock()
 
 	minerResult := make([]MinerInfo, 0, len(minersList))

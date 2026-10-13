@@ -51,26 +51,9 @@ type Equipment struct {
 	purchased     bool
 }
 
-// Конструктор осуществляющий создание экземпляра оборудования по указателю, в связи с необходимость отслеживания его сотсояния
+// Конструктор осуществляющий создание экземпляра оборудования по указателю, в связи с необходимость отслеживания его состояния
 func NewEquipment(equipmentType EquipmentType) *Equipment {
 	return &Equipment{
 		equipmentType: equipmentType,
-	}
-}
-
-// Структура для вывода состояния купленного/не купленного оборудования на момент игры
-type EquipmentInfo struct {
-	EquipmentTypeName EquipmentTypeName
-	Name              string
-	Cost              Coal
-	Purchased         bool
-}
-
-func newEquipmentInfo(equipment Equipment) EquipmentInfo {
-	return EquipmentInfo{
-		EquipmentTypeName: equipment.equipmentType.equipmentTypeName,
-		Name:              equipment.equipmentType.name,
-		Cost:              equipment.equipmentType.cost,
-		Purchased:         equipment.purchased,
 	}
 }
