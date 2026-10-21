@@ -1,27 +1,30 @@
 package main
 
 import (
+	"CoalCollection/http"
 	"context"
 	"fmt"
-	"time"
 )
 
 func main() {
 
 	rootCtx := context.Background()
 
+	// Создание слоя gameService
 	game, err := buildGame(rootCtx)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	game.Start()
-	fmt.Println("Coal mine started")
-	time.Sleep(10 * time.Second)
+	// Создание handlers
+	handlers := http.NewHttpHandlers(game)
 
-	game.Shutdown()
+	// Создание http сервера
+	httpServer := http.NewHttpServer(handlers)
 
-	fmt.Println("Статус игры", game.StatusEnterprise())
-	fmt.Println("Конец")
+	if err := httpServer.StartServer(); err != nil {
+		fmt.Println("fail start server")
+		return
+	}
 }

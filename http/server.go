@@ -1,0 +1,42 @@
+package http
+
+import (
+	"errors"
+	"fmt"
+	"net/http"
+)
+
+type HttpServer struct {
+	httpHandlers *HttpHandlers
+}
+
+func NewHttpServer(httpHandlers *HttpHandlers) *HttpServer {
+	return &HttpServer{
+		httpHandlers: httpHandlers,
+	}
+}
+
+func (hs *HttpServer) StartServer() error {
+
+	// Маршрутизатор от net/http, стоковый с go 1.22
+	router := http.NewServeMux()
+
+	// Заполняем маршрутизатор обработчиками
+	router.HandleFunc("POST /game/{state}", hs.httpHandlers.handleGame)
+
+	// Более корректное создание сервера, тут можно различных финтифлюшек добавить
+	server := &http.Server{
+		Addr:    ":9091",
+		Handler: router,
+	}
+
+	err := server.ListenAndServe()
+
+	// Если сервер запустился с ошибкой или если завершился не штатно, http.ErrServerClosed - ошибка, в случае если сервер штатно завершил свою работу
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+
+	fmt.Println("Сервер успешно запущен")
+	return nil
+}
