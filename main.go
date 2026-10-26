@@ -24,7 +24,7 @@ func main() {
 	httpServer := http.NewHttpServer(handlers)
 
 	if err := httpServer.StartServer(); err != nil {
-		fmt.Println("fail start server")
+		fmt.Println("fail start server:", err)
 		return
 	}
 }

@@ -30,6 +30,7 @@ func (hs *HttpServer) StartServer() error {
 		Handler: router,
 	}
 
+	fmt.Println("starting HTTP server on :9091")
 	err := server.ListenAndServe()
 
 	// Если сервер запустился с ошибкой или если завершился не штатно, http.ErrServerClosed - ошибка, в случае если сервер штатно завершил свою работу
@@ -37,6 +38,5 @@ func (hs *HttpServer) StartServer() error {
 		return err
 	}
 
-	fmt.Println("Сервер успешно запущен")
 	return nil
 }
