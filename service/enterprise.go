@@ -29,8 +29,8 @@ func (g *Game) startPassiveIncome() {
 func (g *Game) StatusEnterprise() (domain.EnterpriseStatus, error) {
 	g.lifecycleMu.RLock()
 	defer g.lifecycleMu.RUnlock()
-	if g.gameState != gameRunning {
-		return domain.EnterpriseStatus{}, ErrGameIsNotRunning
+	if g.gameState == gameCreated {
+		return domain.EnterpriseStatus{}, ErrGameIsNotStart
 	}
 
 	return g.enterprise.Status(), nil

@@ -8,6 +8,6 @@ var (
 
 	ErrGameCannotStart  = errors.New("game cannot start")
 	ErrGameCannotFinish = errors.New("game cannot finish")
-	ErrGameIsFinished   = errors.New("game is already finished")
 	ErrGameIsNotRunning = errors.New("game is not running")
+	ErrGameIsNotStart   = errors.New("current game created and not started")
 )
