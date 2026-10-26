@@ -9,6 +9,13 @@ import (
 // Метод необходимый для найма шахтёра и инициализации его как горутины посредствам
 // startMinerMine(miner)
 func (g *Game) HireMiner(typeMiner string) error {
+	g.lifecycleMu.RLock()
+	defer g.lifecycleMu.RUnlock()
+
+	if g.gameState != gameRunning {
+		return ErrGameIsNotRunning
+	}
+
 	minerTypeName := domain.MinerTypeName(typeMiner)
 
 	minerType, exists := g.minerTypes[minerTypeName]
@@ -68,17 +75,34 @@ func (g *Game) MinersType() []domain.MinerType {
 }
 
 // Метод для получения работающих сейчас шахтёров
-func (g *Game) AvailableMiners() []domain.MinerInfo {
-	return g.enterprise.AvailableMiners()
+func (g *Game) AvailableMiners() ([]domain.MinerInfo, error) {
+	g.lifecycleMu.RLock()
+	defer g.lifecycleMu.RUnlock()
+	if g.gameState != gameRunning {
+		return nil, ErrGameIsNotRunning
+	}
+	return g.enterprise.AvailableMiners(), nil
 }
 
 // Метод для получения не работающих сейчас шахтёров
-func (g *Game) ExhaustedMiners() []domain.MinerInfo {
-	return g.enterprise.ExhaustedMiners()
+func (g *Game) ExhaustedMiners() ([]domain.MinerInfo, error) {
+	g.lifecycleMu.RLock()
+	defer g.lifecycleMu.RUnlock()
+	if g.gameState != gameRunning {
+		return nil, ErrGameIsNotRunning
+	}
+
+	return g.enterprise.ExhaustedMiners(), nil
 }
 
 // Метод для получения шахтёров по определённому типу
 func (g *Game) MinersByType(typeMiner string) ([]domain.MinerInfo, error) {
+	g.lifecycleMu.RLock()
+	defer g.lifecycleMu.RUnlock()
+	if g.gameState != gameRunning {
+		return nil, ErrGameIsNotRunning
+	}
+
 	typeMinerName := domain.MinerTypeName(typeMiner)
 	_, exists := g.minerTypes[typeMinerName]
 	if !exists {

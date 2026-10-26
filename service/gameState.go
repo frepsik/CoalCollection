@@ -1,19 +1,11 @@
 package service
 
-// Структура и методы отвечающие за текущее состояние игры (работает ли предприятие)
-type gameState struct {
-	gameStarted bool
-}
+type gameState int
 
-// Возвращает текущее состояние игры
-func (gs *gameState) currentState() bool {
-	return gs.gameStarted
-}
-
-func (gs *gameState) start() {
-	gs.gameStarted = true
-}
-
-func (gs *gameState) finish() {
-	gs.gameStarted = false
-}
+// Типа enum, у которого константы имеют тип gameState, который число. Здесь itoa говорит, что начинаем с нуля, и с каждой следующей строчкой увеличивается на 1
+// некоторый счётчик
+const (
+	gameCreated  gameState = iota // 0
+	gameRunning                   // 1
+	gameFinished                  // 2
+)

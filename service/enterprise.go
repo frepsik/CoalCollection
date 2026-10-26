@@ -26,6 +26,12 @@ func (g *Game) startPassiveIncome() {
 }
 
 // Метод позволяющий узнать, текущий статус, по тому, сколько идёт игра, и сколько сейчас угля, сюда дальше ещё надо интегрировать шахтёров и оборудование, но пока временно так
-func (g *Game) StatusEnterprise() domain.EnterpriseStatus {
-	return g.enterprise.Status()
+func (g *Game) StatusEnterprise() (domain.EnterpriseStatus, error) {
+	g.lifecycleMu.RLock()
+	defer g.lifecycleMu.RUnlock()
+	if g.gameState != gameRunning {
+		return domain.EnterpriseStatus{}, ErrGameIsNotRunning
+	}
+
+	return g.enterprise.Status(), nil
 }
