@@ -15,30 +15,23 @@ func NewHttpHandlers(gameService *service.Game) *HttpHandlers {
 	}
 }
 
-// Запуск/завершение работы предприятия
-func (h *HttpHandlers) handleGame(w http.ResponseWriter, r *http.Request) {
-
-	// Получаем значение переданное в качестве паттерна
-	gameDTO := gameDTO{
-		state: r.PathValue("state"),
-	}
-
-	// Проверяем, адекватное ли пришло значение
-	if err := gameDTO.validate(); err != nil {
-		errorDTO := newErrorDTO(err.Error())
-
-		http.Error(w, errorDTO.ToString(), http.StatusBadRequest)
-
+// Запуск работы предприятия
+func (h *HttpHandlers) handleStartGame(w http.ResponseWriter, r *http.Request) {
+	if err := h.gameService.Start(); err != nil {
+		errorResponse := writeError(err.Error())
+		writeJSON(w, http.StatusBadRequest, errorResponse)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
+}
 
-	// Запускаем либо завершаем работу предприятия
-	if gameDTO.state == "start" {
-		h.gameService.Start()
-	} else {
-		h.gameService.Shutdown()
+// Завершение работы предприятия
+func (h *HttpHandlers) handleShutdownGame(w http.ResponseWriter, r *http.Request) {
+	if err := h.gameService.Shutdown(); err != nil {
+		errorResponse := writeError(err.Error())
+		writeJSON(w, http.StatusBadRequest, errorResponse)
+		return
 	}
-
 	w.WriteHeader(http.StatusOK)
 }
 

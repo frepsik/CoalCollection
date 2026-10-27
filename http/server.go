@@ -22,7 +22,7 @@ func (hs *HttpServer) StartServer() error {
 	router := http.NewServeMux()
 
 	// Заполняем маршрутизатор обработчиками
-	router.HandleFunc("POST /game/{state}", hs.httpHandlers.handleGame)
+	router.HandleFunc("POST /game/start}", hs.httpHandlers.handleStartGame)
 
 	// Более корректное создание сервера, тут можно различных финтифлюшек добавить
 	server := &http.Server{
