@@ -1,4 +1,4 @@
-package http
+package httpapi
 
 // Проверяем, корректное ли значение пришло для запуска/завершения работы предприятия
 // func validate() error {

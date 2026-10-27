@@ -1,9 +1,10 @@
 package main
 
 import (
-	"CoalCollection/http"
+	"CoalCollection/httpapi"
 	"context"
 	"fmt"
+	"log"
 )
 
 func main() {
@@ -18,13 +19,13 @@ func main() {
 	}
 
 	// Создание handlers
-	handlers := http.NewHttpHandlers(game)
+	handlers := httpapi.NewHandler(game)
 
 	// Создание http сервера
-	httpServer := http.NewHttpServer(handlers)
+	httpServer := httpapi.NewServer(handlers)
 
-	if err := httpServer.StartServer(); err != nil {
-		fmt.Println("fail start server:", err)
+	if err := httpServer.Start(); err != nil {
+		log.Println("fail start server:", err)
 		return
 	}
 }

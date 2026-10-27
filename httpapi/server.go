@@ -1,4 +1,4 @@
-package http
+package httpapi
 
 import (
 	"errors"
@@ -6,23 +6,23 @@ import (
 	"net/http"
 )
 
-type HttpServer struct {
-	httpHandlers *HttpHandlers
+type Server struct {
+	httpHandlers *Handler
 }
 
-func NewHttpServer(httpHandlers *HttpHandlers) *HttpServer {
-	return &HttpServer{
+func NewServer(httpHandlers *Handler) *Server {
+	return &Server{
 		httpHandlers: httpHandlers,
 	}
 }
 
-func (hs *HttpServer) StartServer() error {
+func (hs *Server) Start() error {
 
 	// Маршрутизатор от net/http, стоковый с go 1.22
 	router := http.NewServeMux()
 
 	// Заполняем маршрутизатор обработчиками
-	router.HandleFunc("POST /game/start}", hs.httpHandlers.handleStartGame)
+	router.HandleFunc("POST /game/start}", hs.httpHandlers.startGame)
 
 	// Более корректное создание сервера, тут можно различных финтифлюшек добавить
 	server := &http.Server{
