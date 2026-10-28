@@ -8,29 +8,29 @@ import (
 
 // Метод необходимый для найма шахтёра и инициализации его как горутины посредствам
 // startMinerMine(miner)
-func (g *Game) HireMiner(typeMiner string) error {
+func (g *Game) HireMiner(typeMiner string) (domain.MinerTypeInfo, error) {
 	g.lifecycleMu.RLock()
 	defer g.lifecycleMu.RUnlock()
 
 	if g.gameState != gameRunning {
-		return ErrGameIsNotRunning
+		return domain.MinerTypeInfo{}, ErrGameIsNotRunning
 	}
 
 	minerTypeName := domain.MinerTypeName(typeMiner)
 
 	minerType, exists := g.minerTypes[minerTypeName]
 	if !exists {
-		return ErrMinerTypeNotFound
+		return domain.MinerTypeInfo{}, ErrMinerTypeNotFound
 	}
 
 	miner, err := g.enterprise.HireMiner(minerType)
 	if err != nil {
-		return err
+		return domain.MinerTypeInfo{}, err
 	}
 
 	g.startMinerMine(miner)
 
-	return nil
+	return domain.NewMinerTypeInfo(minerType), nil
 }
 
 // Метод добычи угля определённым шахтёром

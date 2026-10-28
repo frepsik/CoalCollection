@@ -3,7 +3,6 @@ package main
 import (
 	"CoalCollection/httpapi"
 	"context"
-	"fmt"
 	"log"
 )
 
@@ -14,7 +13,7 @@ func main() {
 	// Создание слоя gameService
 	game, err := buildGame(rootCtx)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("fail build program", err)
 		return
 	}
 

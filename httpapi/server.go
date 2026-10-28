@@ -7,22 +7,23 @@ import (
 )
 
 type Server struct {
-	httpHandlers *Handler
+	handler *Handler
 }
 
-func NewServer(httpHandlers *Handler) *Server {
+func NewServer(handler *Handler) *Server {
 	return &Server{
-		httpHandlers: httpHandlers,
+		handler: handler,
 	}
 }
 
-func (hs *Server) Start() error {
+func (s *Server) Start() error {
 
 	// Маршрутизатор от net/http, стоковый с go 1.22
 	router := http.NewServeMux()
 
 	// Заполняем маршрутизатор обработчиками
-	router.HandleFunc("POST /game/start}", hs.httpHandlers.startGame)
+	router.HandleFunc("POST /game/start", s.handler.startGame)
+	router.HandleFunc("POST /game/shutdown", s.handler.shutdownGame)
 
 	// Более корректное создание сервера, тут можно различных финтифлюшек добавить
 	server := &http.Server{

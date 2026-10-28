@@ -18,14 +18,14 @@ func newEquipmentInfo(equipment Equipment) EquipmentInfo {
 }
 
 // Структура под вывод данных в Json
-type EquipmentTypesInfo struct {
+type EquipmentTypeInfo struct {
 	EquipmentTypeName EquipmentTypeName
 	Name              string
 	Cost              Coal
 }
 
-func NewEquipmentTypesInfo(equipmentType EquipmentType) EquipmentTypesInfo {
-	return EquipmentTypesInfo{
+func NewEquipmentTypeInfo(equipmentType EquipmentType) EquipmentTypeInfo {
+	return EquipmentTypeInfo{
 		EquipmentTypeName: equipmentType.equipmentTypeName,
 		Name:              equipmentType.name,
 		Cost:              equipmentType.cost,

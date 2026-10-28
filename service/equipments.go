@@ -3,11 +3,11 @@ package service
 import "CoalCollection/domain"
 
 // Метод для получения оборудования, которое можно приобрести
-func (g *Game) Equipments() []domain.EquipmentType {
-	result := make([]domain.EquipmentType, 0, len(g.equipmentTypes))
+func (g *Game) Equipments() []domain.EquipmentTypeInfo {
+	result := make([]domain.EquipmentTypeInfo, 0, len(g.equipmentTypes))
 
 	for _, equipmentType := range g.equipmentTypes {
-		result = append(result, equipmentType)
+		result = append(result, domain.NewEquipmentTypeInfo(equipmentType))
 	}
 
 	return result
