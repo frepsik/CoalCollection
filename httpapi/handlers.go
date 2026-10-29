@@ -166,7 +166,8 @@ func (h *Handler) minersType(w http.ResponseWriter, r *http.Request) {
 //		State *domain.MinerState
 //	}
 //
-// Пример запроса GET /miners?type=strongMiner&state=available
+// Пример такого запроса GET /miners?type=strongMiner&state=available
+// Но пока необходимости нет, оставлю как пример так, но в случае чего нужно будет переписать методы в Service, с фильтрацией
 func (h *Handler) miners(w http.ResponseWriter, r *http.Request) {
 	stateMiner := r.URL.Query().Get("state")
 	typeMiner := r.URL.Query().Get("type")
