@@ -23,7 +23,7 @@ func (h *Handler) startGame(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, errorResponse)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // Завершение работы предприятия
@@ -33,7 +33,7 @@ func (h *Handler) shutdownGame(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, errorResponse)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // Получение статуса, текущей информации по предприятию в моменте
@@ -89,15 +89,22 @@ func (h *Handler) equipments(w http.ResponseWriter, r *http.Request) {
 	default:
 		errorResponse := writeError("state query parameter is required or invalid equipment state")
 		writeJSON(w, http.StatusBadRequest, errorResponse)
+		return
 	}
 }
 
-// Приобретение оборудования
+// Приобретение оборудования POST /equipments/{type}/purchase пример
 func (h *Handler) buyEquipment(w http.ResponseWriter, r *http.Request) {
-
+	equipmentType := r.PathValue("type")
+	if err := h.gameService.BuyEquipment(equipmentType); err != nil {
+		errorResponse := writeError(err.Error())
+		writeJSON(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
-// Нанять шахтёра
+// Нанять шахтёра (должно приходить json тело) POST /miners/strongMiner пример
 func (h *Handler) hireMiner(w http.ResponseWriter, r *http.Request) {
 	var request hireMinerRequest
 
@@ -142,20 +149,63 @@ func (h *Handler) hireMiner(w http.ResponseWriter, r *http.Request) {
 
 // Получение типов шахтёров, которых можно нанять
 func (h *Handler) minersType(w http.ResponseWriter, r *http.Request) {
-
+	// Здесь без проверок потому что сценария в котором случится так, что данный список будет пуст просто не будет, игра не запустится если при сборке данных не будет
+	minersTypeInfo := h.gameService.MinersType()
+	minerTypeResponses := make([]minerTypeResponse, 0, len(minersTypeInfo))
+	for _, miner := range minersTypeInfo {
+		minerTypeResponses = append(minerTypeResponses, newMinerTypeResponse(miner))
+	}
+	writeJSON(w, http.StatusOK, minerTypeResponses)
 }
 
-// Получение нанятых шахтёров, которые сейчас работают
-func (h *Handler) availableMiners(w http.ResponseWriter, r *http.Request) {
-
-}
-
-// Получение нанятых шахтёров, которые сейчас не работают
-func (h *Handler) exhaustedMiners(w http.ResponseWriter, r *http.Request) {
-
+// Получение шахтёров в зависимости от query параметра
+// Вообще если вырастить функционал и потребуется различная фильтрация будет лучше использовать следующую концепцию с фильтром
+//
+//	type MinerFilter struct {
+//		Type  *domain.MinerTypeName
+//		State *domain.MinerState
+//	}
+//
+// Пример запроса GET /miners?type=strongMiner&state=available
+func (h *Handler) miners(w http.ResponseWriter, r *http.Request) {
+	stateMiner := r.URL.Query().Get("state")
+	typeMiner := r.URL.Query().Get("type")
+	switch {
+	case stateMiner == "exhausted":
+		miners, err := h.gameService.ExhaustedMiners()
+		if err != nil {
+			errorResponse := writeError(err.Error())
+			writeJSON(w, http.StatusBadRequest, errorResponse)
+			return
+		}
+		minerResponses := newMinerResponses(miners)
+		writeJSON(w, http.StatusOK, minerResponses)
+	case stateMiner == "available":
+		miners, err := h.gameService.AvailableMiners()
+		if err != nil {
+			errorResponse := writeError(err.Error())
+			writeJSON(w, http.StatusBadRequest, errorResponse)
+			return
+		}
+		minerResponses := newMinerResponses(miners)
+		writeJSON(w, http.StatusOK, minerResponses)
+	case typeMiner != "":
+		h.minersByType(w, typeMiner)
+	default:
+		errorResponse := writeError("state query parameter is required or invalid miner state")
+		writeJSON(w, http.StatusBadRequest, errorResponse)
+		return
+	}
 }
 
 // Получение шахтёров по их классу
-func (h *Handler) minersByType(w http.ResponseWriter, r *http.Request) {
-
+func (h *Handler) minersByType(w http.ResponseWriter, minerType string) {
+	miners, err := h.gameService.MinersByType(minerType)
+	if err != nil {
+		errorResponse := writeError(err.Error())
+		writeJSON(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+	minerResponses := newMinerResponses(miners)
+	writeJSON(w, http.StatusOK, minerResponses)
 }

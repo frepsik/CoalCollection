@@ -66,10 +66,10 @@ func (g *Game) startMinerMine(
 }
 
 // Метод для возвращения списка типов шахтёров, чтобы пользователь мог ознакомиться, что ему можно приобрести
-func (g *Game) MinersType() []domain.MinerType {
-	result := make([]domain.MinerType, 0, len(g.minerTypes))
+func (g *Game) MinersType() []domain.MinerTypeInfo {
+	result := make([]domain.MinerTypeInfo, 0, len(g.minerTypes))
 	for _, miner := range g.minerTypes {
-		result = append(result, miner)
+		result = append(result, domain.NewMinerTypeInfo(miner))
 	}
 	return result
 }
