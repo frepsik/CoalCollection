@@ -23,20 +23,15 @@ type equipmentResponse struct {
 	EquipmentTypeName string `json:"equipmentTypeName"`
 	Name              string `json:"name"`
 	Cost              int    `json:"cost"`
-	Purchased         string `json:"purchased"`
+	Purchased         bool   `json:"purchased"`
 }
 
 func newEquipmentResponse(equipmentInfo domain.EquipmentInfo) equipmentResponse {
-	var purchasedEquipment string
-	if equipmentInfo.Purchased {
-		purchasedEquipment = "Приобретено"
-	}
-	purchasedEquipment = "Не приобретено"
 	return equipmentResponse{
 		EquipmentTypeName: string(equipmentInfo.EquipmentTypeName),
 		Name:              equipmentInfo.Name,
 		Cost:              int(equipmentInfo.Cost),
-		Purchased:         purchasedEquipment,
+		Purchased:         equipmentInfo.Purchased,
 	}
 }
 
@@ -61,7 +56,7 @@ type minerResponse struct {
 	TypeName        string    `json:"typeName"`
 	Name            string    `json:"name"`
 	Cost            int       `json:"cost"`
-	LeftEnergy      int       `json:"lefEnergy"`
+	LeftEnergy      int       `json:"leftEnergy"`
 	Extraction      int       `json:"extraction"`
 	IntervalSeconds int       `json:"intervalSeconds"`
 	Growth          int       `json:"growth"`
