@@ -6,31 +6,36 @@ import (
 	"time"
 )
 
+type MinerFilter struct {
+	State *string
+	Type  *string
+}
+
 // Метод необходимый для найма шахтёра и инициализации его как горутины посредствам
 // startMinerMine(miner)
-func (g *Game) HireMiner(typeMiner string) (domain.MinerTypeInfo, error) {
+func (g *Game) HireMiner(typeMiner string) error {
 	g.lifecycleMu.RLock()
 	defer g.lifecycleMu.RUnlock()
 
 	if g.gameState != gameRunning {
-		return domain.MinerTypeInfo{}, ErrGameIsNotRunning
+		return ErrGameIsNotRunning
 	}
 
 	minerTypeName := domain.MinerTypeName(typeMiner)
 
 	minerType, exists := g.minerTypes[minerTypeName]
 	if !exists {
-		return domain.MinerTypeInfo{}, ErrMinerTypeNotFound
+		return ErrMinerTypeNotFound
 	}
 
 	miner, err := g.enterprise.HireMiner(minerType)
 	if err != nil {
-		return domain.MinerTypeInfo{}, err
+		return err
 	}
 
 	g.startMinerMine(miner)
 
-	return domain.NewMinerTypeInfo(minerType), nil
+	return nil
 }
 
 // Метод добычи угля определённым шахтёром
@@ -72,6 +77,16 @@ func (g *Game) MinersType() []domain.MinerTypeInfo {
 		result = append(result, domain.NewMinerTypeInfo(miner))
 	}
 	return result
+}
+
+func (g *Game) Miners(minerFilter MinerFilter) ([]domain.MinerInfo, error) {
+	g.lifecycleMu.RLock()
+	defer g.lifecycleMu.RUnlock()
+	if g.gameState != gameRunning {
+		return nil, ErrGameIsNotRunning
+	}
+
+	return g.enterprise.AvailableMiners(), nil
 }
 
 // Метод для получения работающих сейчас шахтёров

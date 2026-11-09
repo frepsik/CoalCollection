@@ -119,32 +119,13 @@ func (h *Handler) hireMiner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch request.MinerTypeName {
-	case "smallMiner":
-		minerTypeInfo, err := h.gameService.HireMiner(request.MinerTypeName)
-		if err != nil {
-			errorResponse := writeError(err.Error())
-			writeJSON(w, http.StatusBadRequest, errorResponse)
-			return
-		}
-		writeJSON(w, http.StatusCreated, newMinerTypeResponse(minerTypeInfo))
-	case "normalMiner":
-		minerTypeInfo, err := h.gameService.HireMiner(request.MinerTypeName)
-		if err != nil {
-			errorResponse := writeError(err.Error())
-			writeJSON(w, http.StatusBadRequest, errorResponse)
-			return
-		}
-		writeJSON(w, http.StatusCreated, newMinerTypeResponse(minerTypeInfo))
-	case "strongMiner":
-		minerTypeInfo, err := h.gameService.HireMiner(request.MinerTypeName)
-		if err != nil {
-			errorResponse := writeError(err.Error())
-			writeJSON(w, http.StatusBadRequest, errorResponse)
-			return
-		}
-		writeJSON(w, http.StatusCreated, newMinerTypeResponse(minerTypeInfo))
+	err := h.gameService.HireMiner(request.MinerTypeName)
+	if err != nil {
+		errorResponse := writeError(err.Error())
+		writeJSON(w, http.StatusBadRequest, errorResponse)
+		return
 	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // Получение типов шахтёров, которых можно нанять
@@ -169,34 +150,56 @@ func (h *Handler) minersType(w http.ResponseWriter, r *http.Request) {
 // Пример такого запроса GET /miners?type=strongMiner&state=available
 // Но пока необходимости нет, оставлю как пример так, но в случае чего нужно будет переписать методы в Service, с фильтрацией
 func (h *Handler) miners(w http.ResponseWriter, r *http.Request) {
-	stateMiner := r.URL.Query().Get("state")
-	typeMiner := r.URL.Query().Get("type")
-	switch {
-	case stateMiner == "exhausted":
-		miners, err := h.gameService.ExhaustedMiners()
-		if err != nil {
-			errorResponse := writeError(err.Error())
+	minerFilter := service.MinerFilter{}
+	// Получаем map с ключами, и значениям, где ключ это первое значение после вопроса, например type, а значенеи, это уже значение после =, наприммер available
+	query := r.URL.Query()
+	//Проверяем текущие ключи, если они не совпадают (если ключей вообще не передали, то query будет пустой как map, там не будет ничего, цикл не пройдёт)
+	for key := range query {
+		if key != "type" && key != "state" {
+			errorResponse := writeError("invalid request query options")
 			writeJSON(w, http.StatusBadRequest, errorResponse)
 			return
 		}
-		minerResponses := newMinerResponses(miners)
-		writeJSON(w, http.StatusOK, minerResponses)
-	case stateMiner == "available":
-		miners, err := h.gameService.AvailableMiners()
-		if err != nil {
-			errorResponse := writeError(err.Error())
-			writeJSON(w, http.StatusBadRequest, errorResponse)
-			return
-		}
-		minerResponses := newMinerResponses(miners)
-		writeJSON(w, http.StatusOK, minerResponses)
-	case typeMiner != "":
-		h.minersByType(w, typeMiner)
-	default:
-		errorResponse := writeError("state query parameter is required or invalid miner state")
-		writeJSON(w, http.StatusBadRequest, errorResponse)
-		return
 	}
+
+	//Проверяем, передали ли хоть один из этих, ключей, а если передали, конкретно нужный вернёт true и какой из них
+	if query.Has("state") {
+		state := query.Get("state")
+		minerFilter.State = &state
+	}
+	if query.Has("type") {
+		minerType := query.Get("type")
+		minerFilter.Type = &minerType
+	}
+
+	// stateMiner := r.URL.Query().Get("state")
+	// typeMiner := r.URL.Query().Get("type")
+	// switch {
+	// case stateMiner == "exhausted":
+	// 	miners, err := h.gameService.ExhaustedMiners()
+	// 	if err != nil {
+	// 		errorResponse := writeError(err.Error())
+	// 		writeJSON(w, http.StatusBadRequest, errorResponse)
+	// 		return
+	// 	}
+	// 	minerResponses := newMinerResponses(miners)
+	// 	writeJSON(w, http.StatusOK, minerResponses)
+	// case stateMiner == "available":
+	// 	miners, err := h.gameService.AvailableMiners()
+	// 	if err != nil {
+	// 		errorResponse := writeError(err.Error())
+	// 		writeJSON(w, http.StatusBadRequest, errorResponse)
+	// 		return
+	// 	}
+	// 	minerResponses := newMinerResponses(miners)
+	// 	writeJSON(w, http.StatusOK, minerResponses)
+	// case typeMiner != "":
+	// 	h.minersByType(w, typeMiner)
+	// default:
+	// 	errorResponse := writeError("state query parameter is required or invalid miner state")
+	// 	writeJSON(w, http.StatusBadRequest, errorResponse)
+	// 	return
+	// }
 }
 
 // Получение шахтёров по их классу
