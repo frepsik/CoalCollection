@@ -79,14 +79,37 @@ func (g *Game) MinersType() []domain.MinerTypeInfo {
 	return result
 }
 
-func (g *Game) Miners(minerFilter MinerFilter) ([]domain.MinerInfo, error) {
+func (g *Game) Miners(filter MinerFilter) ([]domain.MinerInfo, error) {
 	g.lifecycleMu.RLock()
 	defer g.lifecycleMu.RUnlock()
 	if g.gameState != gameRunning {
 		return nil, ErrGameIsNotRunning
 	}
 
-	return g.enterprise.AvailableMiners(), nil
+	switch {
+	// Комбинация, в случае когда необходима фильтрация только по типу шахтёра
+	case filter.Type != nil:
+		minerType := domain.MinerTypeName(*filter.Type)
+		if _, exists := g.minerTypes[minerType]; !exists {
+			return nil, ErrMinerTypeNotFound
+		}
+		return g.enterprise.MinersByType(minerType), nil
+	// Комбинация, в случае когда необходима фильтрация по состоянию шахтёра (измучен/может работать)
+	case filter.State != nil:
+		switch *filter.State {
+		case "available":
+			return g.enterprise.AvailableMiners(), nil
+		case "exhausted":
+			return g.enterprise.ExhaustedMiners(), nil
+		default:
+			return nil, ErrInvalidMinerState
+		}
+	// Комбинация на случай вывода всех шахтёров что были, но пока мы данный сценарий исключим, не думаю, что в нём есть необходимость и не планировалась изначально
+	// сюда же залетают комбинации из двух параметров, пока что, но в теории можно это разрасти до нормального уровня
+	default:
+		return nil, ErrUnsupportedFilterCombination
+	}
+
 }
 
 // Метод для получения работающих сейчас шахтёров
