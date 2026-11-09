@@ -172,6 +172,15 @@ func (h *Handler) miners(w http.ResponseWriter, r *http.Request) {
 		minerFilter.Type = &minerType
 	}
 
+	miners, err := h.gameService.Miners(minerFilter)
+	if err != nil {
+		errorResponse := writeError(err.Error())
+		writeJSON(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	minerResponses := newMinerResponses(miners)
+	writeJSON(w, http.StatusOK, minerResponses)
 	// stateMiner := r.URL.Query().Get("state")
 	// typeMiner := r.URL.Query().Get("type")
 	// switch {
@@ -202,14 +211,14 @@ func (h *Handler) miners(w http.ResponseWriter, r *http.Request) {
 	// }
 }
 
-// Получение шахтёров по их классу
-func (h *Handler) minersByType(w http.ResponseWriter, minerType string) {
-	miners, err := h.gameService.MinersByType(minerType)
-	if err != nil {
-		errorResponse := writeError(err.Error())
-		writeJSON(w, http.StatusBadRequest, errorResponse)
-		return
-	}
-	minerResponses := newMinerResponses(miners)
-	writeJSON(w, http.StatusOK, minerResponses)
-}
+// // Получение шахтёров по их классу
+// func (h *Handler) minersByType(w http.ResponseWriter, minerType string) {
+// 	miners, err := h.gameService.MinersByType(minerType)
+// 	if err != nil {
+// 		errorResponse := writeError(err.Error())
+// 		writeJSON(w, http.StatusBadRequest, errorResponse)
+// 		return
+// 	}
+// 	minerResponses := newMinerResponses(miners)
+// 	writeJSON(w, http.StatusOK, minerResponses)
+// }

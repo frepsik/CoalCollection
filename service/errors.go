@@ -10,4 +10,7 @@ var (
 	ErrGameCannotFinish = errors.New("game cannot finish")
 	ErrGameIsNotRunning = errors.New("game is not running")
 	ErrGameIsNotStart   = errors.New("current game created and not started")
+
+	ErrUnsupportedFilterCombination = errors.New("unsupported filter combination")
+	ErrInvalidMinerState            = errors.New("invalid miner state")
 )
