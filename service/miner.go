@@ -87,8 +87,11 @@ func (g *Game) Miners(filter MinerFilter) ([]domain.MinerInfo, error) {
 	}
 
 	switch {
+<<<<<<< HEAD
 	case filter.State != nil && filter.Type != nil:
 		return nil, ErrUnsupportedFilterCombination
+=======
+>>>>>>> 9dedfffad305793002ff20ea26f8158d3c528c9c
 	// Комбинация, в случае когда необходима фильтрация только по типу шахтёра
 	case filter.Type != nil:
 		minerType := domain.MinerTypeName(*filter.Type)
