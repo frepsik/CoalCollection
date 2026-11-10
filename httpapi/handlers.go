@@ -19,18 +19,20 @@ func NewHandler(gameService *service.Game) *Handler {
 // Запуск работы предприятия
 func (h *Handler) startGame(w http.ResponseWriter, r *http.Request) {
 	if err := h.gameService.Start(); err != nil {
+		statusCodeError := statusCodeFromError(err)
 		errorResponse := writeError(err.Error())
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
 // Завершение работы предприятия
-func (h *Handler) shutdownGame(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) finishGame(w http.ResponseWriter, r *http.Request) {
 	if err := h.gameService.Shutdown(); err != nil {
+		statusCodeError := statusCodeFromError(err)
 		errorResponse := writeError(err.Error())
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -40,8 +42,9 @@ func (h *Handler) shutdownGame(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) statusEnterprise(w http.ResponseWriter, r *http.Request) {
 	enterpriseStatus, err := h.gameService.StatusEnterprise()
 	if err != nil {
+		statusCodeError := statusCodeFromError(err)
 		errorResponse := writeError(err.Error())
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 	enterpriseStatusResponse := newEnterPriseStatusResponse(enterpriseStatus)
@@ -65,14 +68,32 @@ func (h *Handler) equipments(w http.ResponseWriter, r *http.Request) {
 	// Если челик при отправке запроса, написал вместо state, status /equipments?status=purchased, он залетит в default, т.к не правильно указан
 	// параметр, и stateEquipments = "", если просто не правильно указан сам аргумент, чёто типа status /equipments?status=abracadabra
 	// тогда там будет abracadabra, что у нас тоже не ожидается в качестве состояния
-	stateEquipments := r.URL.Query().Get("state")
+	query := r.URL.Query()
+	for key := range query {
+		if key != "state" {
+			statusCodeError := statusCodeFromError(ErrInvalidQueryOptions)
+			errorResponse := writeError(ErrInvalidQueryOptions.Error())
+			writeJSON(w, statusCodeError, errorResponse)
+			return
+		}
+	}
+	// Если ключа state вообще нет
+	if !query.Has("state") {
+		statusCodeError := statusCodeFromError(ErrInvalidQueryOptions)
+		errorResponse := writeError(ErrInvalidQueryOptions.Error())
+		writeJSON(w, statusCodeError, errorResponse)
+		return
+	}
+
+	stateEquipments := query.Get("state")
 
 	switch stateEquipments {
 	case "purchased":
 		equipments, err := h.gameService.EquipmentsPurchased()
 		if err != nil {
+			statusCodeError := statusCodeFromError(err)
 			errorResponse := writeError(err.Error())
-			writeJSON(w, http.StatusBadRequest, errorResponse)
+			writeJSON(w, statusCodeError, errorResponse)
 			return
 		}
 		equipmentsResponses := newEquipmentResponses(equipments)
@@ -80,15 +101,17 @@ func (h *Handler) equipments(w http.ResponseWriter, r *http.Request) {
 	case "not_purchased":
 		equipments, err := h.gameService.EquipmentsNotPurchased()
 		if err != nil {
+			statusCodeError := statusCodeFromError(err)
 			errorResponse := writeError(err.Error())
-			writeJSON(w, http.StatusBadRequest, errorResponse)
+			writeJSON(w, statusCodeError, errorResponse)
 			return
 		}
 		equipmentResponses := newEquipmentResponses(equipments)
 		writeJSON(w, http.StatusOK, equipmentResponses)
 	default:
-		errorResponse := writeError("state query parameter is required or invalid equipment state")
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		statusCodeError := statusCodeFromError(ErrInvalidEquipmentState)
+		errorResponse := writeError(ErrInvalidEquipmentState.Error())
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 }
@@ -97,8 +120,9 @@ func (h *Handler) equipments(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) buyEquipment(w http.ResponseWriter, r *http.Request) {
 	equipmentType := r.PathValue("type")
 	if err := h.gameService.BuyEquipment(equipmentType); err != nil {
+		statusCodeError := statusCodeFromError(err)
 		errorResponse := writeError(err.Error())
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -109,20 +133,23 @@ func (h *Handler) hireMiner(w http.ResponseWriter, r *http.Request) {
 	var request hireMinerRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		errorResponse := writeError("invalid request body")
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		statusCodeError := statusCodeFromError(ErrInvalidRequestBody)
+		errorResponse := writeError(ErrInvalidRequestBody.Error())
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 	if !request.validate() {
-		errorResponse := writeError("invalid request body")
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		statusCodeError := statusCodeFromError(ErrInvalidRequestBody)
+		errorResponse := writeError(ErrInvalidRequestBody.Error())
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 
 	err := h.gameService.HireMiner(request.MinerTypeName)
 	if err != nil {
+		statusCodeError := statusCodeFromError(err)
 		errorResponse := writeError(err.Error())
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -156,8 +183,9 @@ func (h *Handler) miners(w http.ResponseWriter, r *http.Request) {
 	//Проверяем текущие ключи, если они не совпадают (если ключей вообще не передали, то query будет пустой как map, там не будет ничего, цикл не пройдёт)
 	for key := range query {
 		if key != "type" && key != "state" {
-			errorResponse := writeError("invalid request query options")
-			writeJSON(w, http.StatusBadRequest, errorResponse)
+			statusCodeError := statusCodeFromError(ErrInvalidQueryOptions)
+			errorResponse := writeError(ErrInvalidQueryOptions.Error())
+			writeJSON(w, statusCodeError, errorResponse)
 			return
 		}
 	}
@@ -174,51 +202,12 @@ func (h *Handler) miners(w http.ResponseWriter, r *http.Request) {
 
 	miners, err := h.gameService.Miners(minerFilter)
 	if err != nil {
+		statusCodeError := statusCodeFromError(err)
 		errorResponse := writeError(err.Error())
-		writeJSON(w, http.StatusBadRequest, errorResponse)
+		writeJSON(w, statusCodeError, errorResponse)
 		return
 	}
 
 	minerResponses := newMinerResponses(miners)
 	writeJSON(w, http.StatusOK, minerResponses)
-	// stateMiner := r.URL.Query().Get("state")
-	// typeMiner := r.URL.Query().Get("type")
-	// switch {
-	// case stateMiner == "exhausted":
-	// 	miners, err := h.gameService.ExhaustedMiners()
-	// 	if err != nil {
-	// 		errorResponse := writeError(err.Error())
-	// 		writeJSON(w, http.StatusBadRequest, errorResponse)
-	// 		return
-	// 	}
-	// 	minerResponses := newMinerResponses(miners)
-	// 	writeJSON(w, http.StatusOK, minerResponses)
-	// case stateMiner == "available":
-	// 	miners, err := h.gameService.AvailableMiners()
-	// 	if err != nil {
-	// 		errorResponse := writeError(err.Error())
-	// 		writeJSON(w, http.StatusBadRequest, errorResponse)
-	// 		return
-	// 	}
-	// 	minerResponses := newMinerResponses(miners)
-	// 	writeJSON(w, http.StatusOK, minerResponses)
-	// case typeMiner != "":
-	// 	h.minersByType(w, typeMiner)
-	// default:
-	// 	errorResponse := writeError("state query parameter is required or invalid miner state")
-	// 	writeJSON(w, http.StatusBadRequest, errorResponse)
-	// 	return
-	// }
 }
-
-// // Получение шахтёров по их классу
-// func (h *Handler) minersByType(w http.ResponseWriter, minerType string) {
-// 	miners, err := h.gameService.MinersByType(minerType)
-// 	if err != nil {
-// 		errorResponse := writeError(err.Error())
-// 		writeJSON(w, http.StatusBadRequest, errorResponse)
-// 		return
-// 	}
-// 	minerResponses := newMinerResponses(miners)
-// 	writeJSON(w, http.StatusOK, minerResponses)
-// }

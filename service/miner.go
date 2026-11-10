@@ -87,11 +87,8 @@ func (g *Game) Miners(filter MinerFilter) ([]domain.MinerInfo, error) {
 	}
 
 	switch {
-<<<<<<< HEAD
 	case filter.State != nil && filter.Type != nil:
 		return nil, ErrUnsupportedFilterCombination
-=======
->>>>>>> 9dedfffad305793002ff20ea26f8158d3c528c9c
 	// Комбинация, в случае когда необходима фильтрация только по типу шахтёра
 	case filter.Type != nil:
 		minerType := domain.MinerTypeName(*filter.Type)
@@ -112,44 +109,6 @@ func (g *Game) Miners(filter MinerFilter) ([]domain.MinerInfo, error) {
 	// Комбинация на случай вывода всех шахтёров что были, но пока мы данный сценарий исключим, не думаю, что в нём есть необходимость и не планировалась изначально
 	// сюда же залетают комбинации из двух параметров, пока что, но в теории можно это разрасти до нормального уровня
 	default:
-		return nil, ErrUnsupportedFilterCombination
+		return nil, ErrUnsupportedCombination
 	}
-
 }
-
-// // Метод для получения работающих сейчас шахтёров
-// func (g *Game) AvailableMiners() ([]domain.MinerInfo, error) {
-// 	g.lifecycleMu.RLock()
-// 	defer g.lifecycleMu.RUnlock()
-// 	if g.gameState != gameRunning {
-// 		return nil, ErrGameIsNotRunning
-// 	}
-// 	return g.enterprise.AvailableMiners(), nil
-// }
-
-// // Метод для получения не работающих сейчас шахтёров
-// func (g *Game) ExhaustedMiners() ([]domain.MinerInfo, error) {
-// 	g.lifecycleMu.RLock()
-// 	defer g.lifecycleMu.RUnlock()
-// 	if g.gameState != gameRunning {
-// 		return nil, ErrGameIsNotRunning
-// 	}
-
-// 	return g.enterprise.ExhaustedMiners(), nil
-// }
-
-// // Метод для получения шахтёров по определённому типу
-// func (g *Game) MinersByType(typeMiner string) ([]domain.MinerInfo, error) {
-// 	g.lifecycleMu.RLock()
-// 	defer g.lifecycleMu.RUnlock()
-// 	if g.gameState != gameRunning {
-// 		return nil, ErrGameIsNotRunning
-// 	}
-
-// 	typeMinerName := domain.MinerTypeName(typeMiner)
-// 	_, exists := g.minerTypes[typeMinerName]
-// 	if !exists {
-// 		return nil, ErrMinerTypeNotFound
-// 	}
-// 	return g.enterprise.MinersByType(typeMinerName), nil
-// }

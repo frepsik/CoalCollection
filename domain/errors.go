@@ -3,10 +3,10 @@ package domain
 import "errors"
 
 var (
-	// Enterpise
-	ErrEquipmentNotFound         = errors.New("equipment not found")
-	ErrEnterpriseNotEnoughCoal   = errors.New("not enough coal")
-	ErrEquipmentAlreadyPurchased = errors.New("equipment already purchased")
+	// Enterprise
+	ErrEquipmentNotFound         = errors.New("equipment not found")         //404
+	ErrEnterpriseNotEnoughCoal   = errors.New("not enough coal")             // 409
+	ErrEquipmentAlreadyPurchased = errors.New("equipment already purchased") //409
 
 	// Equipment
 	ErrInvalidEquipmentTypeName = errors.New("invalid type name equipment")

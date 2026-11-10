@@ -34,7 +34,7 @@ func createRoute(handler *Handler) *http.ServeMux {
 
 	// Заполняем маршрутизатор обработчиками
 	router.HandleFunc("POST /game/start", handler.startGame)
-	router.HandleFunc("POST /game/shutdown", handler.shutdownGame)
+	router.HandleFunc("POST /game/finish", handler.finishGame)
 	router.HandleFunc("GET /game/status", handler.statusEnterprise)
 	router.HandleFunc("GET /equipments/type", handler.equipmentsType)
 	router.HandleFunc("GET /equipments", handler.equipments)

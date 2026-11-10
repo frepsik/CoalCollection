@@ -92,7 +92,7 @@ func (js JSONStorage) LoadEquipmentTypes() (map[domain.EquipmentTypeName]domain.
 		if err != nil {
 			return nil, fmt.Errorf("%w: error create equipment", err)
 		}
-		if _, existsts := result[equipmentType]; existsts {
+		if _, exists := result[equipmentType]; exists {
 			return nil, ErrDuplicateEquipmentType
 		}
 		result[equipmentType] = equipment
